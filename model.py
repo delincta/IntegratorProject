@@ -13,7 +13,7 @@ class Cell:
 
     # demand function
     def d_fcn(self):
-        return (min(self.v/self.l*self.x[-1],self.c))
+        return (min(self.v/self.l*self.x[-1],self.fmax))
     # supply function
     def s_fcn(self):
         return (max(self.c - self.w*self.x[-1],0))
@@ -109,7 +109,7 @@ class Simulation:
                         else:
                             somme += self.f(j.name,i)
 
-                    self.X[i].x.append(self.X[i].x[-1] + h*somme - sum(self.f(i,j.name) for j in d)) # ordre important
+                    self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f(i,j.name) for j in d))) # ordre important
                 else:
                     self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i) for j in l) - self.f_end(i))) # ordre important
                 
@@ -129,5 +129,6 @@ class Simulation:
             plt.show()
 
                 
+
 
 
