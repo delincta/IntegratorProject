@@ -115,18 +115,20 @@ class Simulation:
                 
     def results(self, h, N):
         t = []
+        plt.ion()
         for k in range(N):
             t.append(k*h)
         for i in self.T:
-            plt.figure
+            plt.figure()
             plt.plot(t,self.T[i].x)
             plt.title(i)
             plt.show()
         for i in self.X:
-            plt.figure
+            plt.figure()
             plt.plot(t,self.X[i].x)
             plt.title(i)
             plt.show()
+        
 
                 
 
