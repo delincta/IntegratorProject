@@ -15,7 +15,7 @@ v_properties = {"T1":[100], "T2":[100], "X1":[500, 70/3.6, 1000/3600, 20/3.6, 0]
 net = Network(vertices)
 graph, sommets = net.create_graph()
 simu = Simulation(graph,sommets)
-
+# commentaire test
 # Exemple 1
 # Définition des positions manuelles
 # positions = {
