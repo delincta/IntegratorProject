@@ -37,3 +37,4 @@ simu.setting(v_properties)
 simu.simu(0.1,10000*2,0.2)
 
 simu.results(0.1,10000*2)
+input("Appuie sur Entrée pour fermer...")
