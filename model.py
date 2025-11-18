@@ -53,18 +53,47 @@ class Simulation:
         self.sommets = sommets
         self.T = {}
         self.X = {}
+        self.verif_f=[0]
+        self.value_s_fcn=[0]
+        self.k_old = 0
+        self.t_old = 0
 
-    def f(self,i,j):
+
+    def f(self,i,j,k):
         if i.startswith("T"):
             return (min(float("inf"),self.X[j].s_fcn()))
         else:
+            if i == "X2" and j == "X3" and k != self.k_old:
+                self.k_old += 1
+                self.value_s_fcn.append(self.X[j].s_fcn())
+                # print(self.k_old)
+                if self.X[i].d_fcn() < self.X[j].s_fcn():
+                    self.verif_f.append(-1)
+                    # print("min = d_fcn")
+                else:
+                    self.verif_f.append(1)
+                    # print("min = s_fcn")
+            
             return (min(self.X[i].d_fcn(),self.X[j].s_fcn()))
+
     
     def f_end(self,i):
         return (self.X[i].d_fcn())
     
     def f_tank(self,i,s,u):
         return min(u*self.T[i].x[-1], self.X[s].s_fcn())
+    
+    def new_f_tank(self,i,s,uref,t):
+        # u =min(uref,self.T[i].x[-1])
+        # return min(u, self.X[s].s_fcn())
+        if t - self.t_old > 5:
+            self.t_old = t
+        if t - self.t_old > 5 or t == self.t_old:
+            u =min(uref,self.T[i].x[-1])
+            return min(u, self.X[s].s_fcn())
+        else:
+            return 0
+        
     
 
     # Paramètres simulation: h = disc. step, N = nb of steps
@@ -84,7 +113,7 @@ class Simulation:
         # print(self.X)
         return self.T, self.X
         
-    def simu(self, h, N, u):
+    def simu(self, h, N, uref):
         # i = self.X["X1"]
         # l = list(self.graph.predecessors(self.sommets[i.name]))
         # print("Prédécesseurs de " + str(i.name) + ": ", l)
@@ -96,7 +125,7 @@ class Simulation:
         for k in range (1,N):
             for t in self.T:
                 d = list(self.graph.successors(self.sommets[t]))
-                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.f_tank(t,s.name,u)) for s in d)) 
+                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank(t,s.name,uref,k*h)) for s in d)) 
             for i in self.X:
                 l = list(self.graph.predecessors(self.sommets[i]))
                 # print("Voisins de " + str(i.name) + ": ", l)
@@ -105,32 +134,74 @@ class Simulation:
                     somme = 0
                     for j in l:
                         if j.name.startswith("T"):
-                            somme += self.f_tank(j.name,i,u)
+                            somme += self.new_f_tank(j.name,i,uref,k*h)
                         else:
-                            somme += self.f(j.name,i)
+                            somme += self.f(j.name,i,k)
 
-                    self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f(i,j.name) for j in d))) # ordre important
+                    self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f(i,j.name,k) for j in d))) # ordre important
                 else:
-                    self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i) for j in l) - self.f_end(i))) # ordre important
+                    self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i,k) for j in l) - self.f_end(i))) # ordre important
                 
     def results(self, h, N):
         t = []
-        plt.ion()
         for k in range(N):
             t.append(k*h)
         for i in self.T:
-            plt.figure()
+            plt.figure
             plt.plot(t,self.T[i].x)
             plt.title(i)
             plt.show()
         for i in self.X:
-            plt.figure()
+            plt.figure
             plt.plot(t,self.X[i].x)
             plt.title(i)
             plt.show()
+
+    # Displays with subplots
+    # dict: dictionnary containing the data (type Cell)
+    # t: time vector
+    def create_subplot(self, dict, t):
+        # Nombre de variables
+        n = len(dict)
+
+        # Déterminer la grille (ici 2 colonnes)
+        cols = 2
+        rows = (n + cols - 1) // cols  # arrondi vers le haut
+
+        fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
+
+        # axs est une matrice → on la transforme en liste pour itérer facilement
+        axs = axs.flatten()
+
+        # Boucle sur chaque variable
+        for i, var in enumerate(dict):
+            axs[i].plot(t,dict[var].x)
+            axs[i].set_title(var)
+
+        # Supprimer les subplots vides si n n'est pas multiple de cols
+        for j in range(i+1, len(axs)):
+            fig.delaxes(axs[j])
+
+        plt.tight_layout()
+        plt.show()
+
+    # To display with subplots
+    def results_2(self, h, N):
+        t = []
+        for k in range(N):
+            t.append(k*h)
         
+        plt.figure
+        plt.plot(t,self.value_s_fcn)
+        plt.plot(t,self.verif_f)
+        plt.title("y(t) = -1 if f_23(x)=d_fcn // y(t) = +1 if f_23(x)=s_fcn")
+        plt.show()
+
+        self.create_subplot(self.T, t)
+        self.create_subplot(self.X, t)
+
+
 
                 
-
 
 
