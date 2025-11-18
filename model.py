@@ -84,15 +84,15 @@ class Simulation:
         return min(u*self.T[i].x[-1], self.X[s].s_fcn())
     
     def new_f_tank(self,i,s,uref,t):
-        # u =min(uref,self.T[i].x[-1])
-        # return min(u, self.X[s].s_fcn())
-        if t - self.t_old > 5:
-            self.t_old = t
-        if t - self.t_old > 5 or t == self.t_old:
-            u =min(uref,self.T[i].x[-1])
-            return min(u, self.X[s].s_fcn())
-        else:
-            return 0
+        u =min(uref,self.T[i].x[-1])
+        return min(u, self.X[s].s_fcn())
+        # if t - self.t_old > 5:
+        #     self.t_old = t
+        # if t - self.t_old > 5 or t == self.t_old:
+        #     u =min(uref,self.T[i].x[-1])
+        #     return min(u, self.X[s].s_fcn())
+        # else:
+        #     return 0
         
     
 
