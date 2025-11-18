@@ -1,0 +1,127 @@
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+import cvxpy as cp
+
+# État : x = [position_x, position_y, vitesse_x, vitesse_y]
+# Commande : u = [accélération_x, accélération_y]
+n = 4
+m = 2
+Ts = 0.1                     # pas de temps discret
+
+A = np.array([
+    [1.0, 0.0, Ts,  0.0],
+    [0.0, 1.0, 0.0, Ts ],
+    [0.0, 0.0, 1.0, 0.0],
+    [0.0, 0.0, 0.0, 1.0]
+])
+
+B = np.array([
+    [0.5*Ts**2,      0.0],
+    [0.0,       0.5*Ts**2],
+    [Ts,            0.0],
+    [0.0,           Ts   ]
+])
+
+# ou plus simplement (exactement équivalent) :
+# A = np.eye(4) + Ts * np.array([[0,0,1,0],[0,0,0,1],[0,0,0,0],[0,0,0,0]])
+# B = np.array([[0.5*Ts**2, 0], [0, 0.5*Ts**2], [Ts, 0], [0, Ts]])
+
+
+Q  = np.diag([10.0, 10.0, 1.0, 1.0])     # on regarde surtout la position
+Qf = np.diag([50.0, 50.0, 5.0, 5.0])     # on veut vraiment y être à la fin
+R  = np.diag([0.1, 0.1])                 # actions peu pénalisées
+u_max = 2.0
+S = 5.0                                  # on peut freiner/accélérer fort
+T = 15                                  # horizon court suffit
+
+def solve_mpc(x0):
+    X = cp.Variable((T+2, n))
+    U = cp.Variable((T+1, m))
+
+    cost = sum(cp.quad_form(X[t], Q) + cp.quad_form(U[t], R) for t in range(T+1))
+    cost += cp.quad_form(X[T+1], Qf)
+
+    constraints = [X[0] == x0]
+    for t in range(T+1):
+        constraints += [X[t+1] == A @ X[t] + B @ U[t]]
+        constraints += [cp.norm_inf(U[t]) <= u_max]
+    for t in range(T):
+        constraints += [cp.norm_inf(U[t+1] - U[t]) <= S]
+
+    prob = cp.Problem(cp.Minimize(cost), constraints)
+    prob.solve(solver=cp.OSQP, warm_start=True, eps_abs=1e-4, eps_rel=1e-4)
+    
+    return U[0].value if prob.status == cp.OPTIMAL else np.zeros(m)
+
+
+######################################## Simulation
+
+N_sim = 300                 
+x_traj = np.zeros((N_sim+1, n))
+u_traj = np.zeros((N_sim, m))
+x0 = np.array([5.0, -4.0, 2.0, -3.0])   # position (5,-4), vitesse (2,-3)
+x_traj[0] = x0
+
+for k in range(N_sim):
+    u = solve_mpc(x_traj[k])
+    if u is None:
+        u = np.zeros(m)
+    u_traj[k] = u
+    x_traj[k+1] = A @ x_traj[k] + B @ u
+
+########################################## Animation
+
+fig, ax = plt.subplots(figsize=(8, 8))
+ax.set_xlim(-6, 6)
+ax.set_ylim(-6, 6)
+ax.set_aspect('equal')
+ax.grid(True, alpha=0.3)
+ax.axhline(0, color='gray', lw=0.8, alpha=0.5)
+ax.axvline(0, color='gray', lw=0.8, alpha=0.5)
+
+# Point cible (l'origine)
+ax.plot(0, 0, 'o', color='lime', markersize=12, markeredgecolor='black', markeredgewidth=2, label="Consigne (0,0)")
+
+# La particule
+particle, = ax.plot([], [], 'o', color='#00DDFF', markersize=16, 
+                    markeredgecolor='black', markeredgewidth=2, zorder=10)
+
+# Trajectoire complète (fine)
+trajectory, = ax.plot([], [], color='#00DDFF', linewidth=2.5, alpha=0.7)
+
+# Historique
+pos_history = []
+trail_history = []
+
+def init():
+    particle.set_data([], [])
+    trajectory.set_data([], [])
+    return particle, trajectory
+
+def update(frame):
+    x, y = x_traj[frame, 0], x_traj[frame, 1]
+    
+    # Historique complet
+    pos_history.append((x, y))
+    traj_x, traj_y = zip(*pos_history)
+    trajectory.set_data(traj_x, traj_y)
+    
+    
+    # Particule actuelle
+    particle.set_data([x], [y])
+    
+    # Titre dynamique
+    ax.set_title(f"Particule 2D contrôlée par MPC  |  t = {frame*Ts:.2f} s  |  "
+                 f"position = ({x:+.2f}, {y:+.2f})  |  vitesse = ({x_traj[frame,2]:+.2f}, {x_traj[frame,3]:+.2f})",
+                 fontsize=12, pad=20)
+    
+    return particle, trajectory
+
+# Animation
+ani = FuncAnimation(fig, update, frames=len(x_traj), init_func=init, 
+                    blit=True, interval=1000*Ts, repeat=True)
+
+ax.legend(loc='upper right')
+plt.tight_layout()
+plt.show()
