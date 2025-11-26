@@ -2,7 +2,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 
 class Cell:
-    def __init__(self, name, l, v, fmax, w, x_0):
+    def __init__(self, name, l, v, fmax, w, x_0, uref):
         self.name = name
         self.l = l # length of road
         self.v = v # car speed
@@ -10,6 +10,7 @@ class Cell:
         self.w = w # slope of supply function
         self.c = l/4.7 # average car length seems to be 4.7m, and we consider a single road
         self.x = [x_0] # trafic volume
+        self.uref = uref
 
     # demand function
     def d_fcn(self):
@@ -83,8 +84,8 @@ class Simulation:
     def f_tank(self,i,s,u):
         return min(u*self.T[i].x[-1], self.X[s].s_fcn())
     
-    def new_f_tank(self,i,s,uref,t):
-        u =min(uref,self.T[i].x[-1])
+    def new_f_tank(self,i,s,t):
+        u =min(self.T[i].uref,self.T[i].x[-1])
         return min(u, self.X[s].s_fcn())
         # if t - self.t_old > 5:
         #     self.t_old = t
@@ -104,7 +105,7 @@ class Simulation:
             if i.name.startswith("T"):
                 print(f"{i.name} is a tank")
                 # print(v_properties[i.nom])
-                self.T[i.name] = Cell(i.name,0,0,0,0,v_properties[i.name][0])
+                self.T[i.name] = Cell(i.name,0,0,0,0,*v_properties[i.name])
                 print(v_properties[i.name][0])
             else:
                 print(f"{i.name} is a portion of road")
@@ -113,7 +114,7 @@ class Simulation:
         # print(self.X)
         return self.T, self.X
         
-    def simu(self, h, N, uref):
+    def simu(self, h, N):
         # i = self.X["X1"]
         # l = list(self.graph.predecessors(self.sommets[i.name]))
         # print("Prédécesseurs de " + str(i.name) + ": ", l)
@@ -124,8 +125,9 @@ class Simulation:
         #     print(self.X[z.name])
         for k in range (1,N):
             for t in self.T:
+                # calculer u
                 d = list(self.graph.successors(self.sommets[t]))
-                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank(t,s.name,uref,k*h)) for s in d)) 
+                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank(t,s.name,k*h)) for s in d)) 
             for i in self.X:
                 l = list(self.graph.predecessors(self.sommets[i]))
                 # print("Voisins de " + str(i.name) + ": ", l)
@@ -134,7 +136,7 @@ class Simulation:
                     somme = 0
                     for j in l:
                         if j.name.startswith("T"):
-                            somme += self.new_f_tank(j.name,i,uref,k*h)
+                            somme += self.new_f_tank(j.name,i,k*h)
                         else:
                             somme += self.f(j.name,i,k)
 
