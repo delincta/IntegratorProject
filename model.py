@@ -94,7 +94,37 @@ class Simulation:
         #     return min(u, self.X[s].s_fcn())
         # else:
         #     return 0
+
+    def command_manager(self,tanks_list,uref):
+        # tanks_list = list(self.T.keys())
+        if len(tanks_list) != 0:
+            emptying_tank = tanks_list[-1]
+            if self.T[emptying_tank].x[-1] < 1:
+                self.T[emptying_tank].uref = 0
+                tanks_list.pop()
+            else:
+                self.T[emptying_tank].uref = uref
+                # emptying_tank = tanks_list[-1]
         
+
+        
+        
+        # if len(self.T[tanks_list(0)].x[-1]) == 1:
+        #     i_min = 0
+        #     mini = 1000
+        #     for i,t in enumerate(tanks_list):
+        #         desc = len(nx.descendants(self.graph, t))
+        #         if desc<min:
+        #             mini = desc
+        #             i_min = i
+        #         self.T[tanks_list(i)].uref = 5
+        # for i,t in enumerate(tanks_list):
+        #     # choose the furthest tank to empty first
+        #     if self.T[t].x[-1] == 0:
+        #         self.T[t].uref = 0
+        #         tanks_list.pop(i)
+        #     else:
+                
     
 
     # Paramètres simulation: h = disc. step, N = nb of steps
@@ -123,7 +153,9 @@ class Simulation:
         # for z in d:
         #     # print(type(z.nom))
         #     print(self.X[z.name])
+        tanks_list = list(self.T.keys())
         for k in range (1,N):
+            self.command_manager(tanks_list,0.3) # Commande max fonctionnement sans bouchons: uref = 0.3
             for t in self.T:
                 # calculer u
                 d = list(self.graph.successors(self.sommets[t]))
@@ -143,7 +175,8 @@ class Simulation:
                     self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f(i,j.name,k) for j in d))) # ordre important
                 else:
                     self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i,k) for j in l) - self.f_end(i))) # ordre important
-                
+  
+
     def results(self, h, N):
         t = []
         for k in range(N):
