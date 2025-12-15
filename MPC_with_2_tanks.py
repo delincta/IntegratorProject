@@ -91,9 +91,7 @@ rho = 1.0      # poids terminal (à ajuster)
 #     rho * sum_squares(X[:, -1] - Xf))
 # Now we can try to penalize the number of vehicles present in the whole network
 
-obj = Minimize(
-    sum_squares(X) +
-    rho * sum_squares(X[:, -1] - Xf))
+obj = Minimize(sum(X))
 
 # Constraints
 constr = []
@@ -102,12 +100,12 @@ constr = []
 constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:N] + h*(Mt@Ft + Mc@Fc)]
 
 for k in range(N):
-    constr += [Sf[:, k] >= Cap - W @ X[2:8, k]]
-    constr += [Sf[:, k] >= 0]
+    constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
+    # constr += [Sf[:, k] >= 0]
     constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
     constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
     for i in range(nc):
-        constr += [Df[i,k] <= V[i]/L[i]*X[2:8, k]]
+        constr += [Df[i,k] <= V[i]/L[i]*X[2+i, k]]
     constr += [Fc[5, k] == Df[5, k]]
     constr += [Fc[0:5, k] <= Sf[1:6, k]]
     constr += [Fc[0:5, k] <= Df[0:5, k]]
@@ -120,10 +118,62 @@ constr += [Ft <= U]
 prob = Problem(obj, constr)
 
 # solve the problem
-prob.solve()
+prob.solve(solver=GUROBI)
+
+print(prob.solver_stats.solver_name)
 print("Problem Status: {}".format(prob.status))
-# print("Optimal value x* = : {}".format(X.value))
+print("Optimal value x* = : {}".format(X.value))
 # print("Optimal solution u* = : {}".format(U.value))
-plt.step(np.arange(N), np.ravel(U.value[0,:]))
-plt.xlabel('Time t')
-plt.ylabel('Command u1(t)')
+# plt.step(np.arange(N), np.ravel(U.value[1,:]))
+# plt.xlabel('Time t')
+# plt.ylabel('Command u1(t)')
+# plt.step(np.arange(N), np.ravel(U.value[0,:]))
+# plt.xlabel('Time t')
+# plt.ylabel('Command u1(t)')
+# plt.show()
+
+####################### Plot the inputs ######################
+cols = 2
+rows = (nt + cols - 1) // cols  # arrondi vers le haut
+
+fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
+
+# axs est une matrice → on la transforme en liste pour itérer facilement
+axs = axs.flatten()
+
+# Boucle sur chaque variable
+for i in range(nt):
+    axs[i].step(np.arange(N), np.ravel(U.value[i,:]))
+    axs[i].set_title(f"u{i+1}")
+
+# Supprimer les subplots vides si n n'est pas multiple de cols
+for j in range(i+1, len(axs)):
+    fig.delaxes(axs[j])
+
+plt.tight_layout()
+plt.show()
+
+
+####################### Plot the states ######################
+cols = 2
+rows = (nt+nc + cols - 1) // cols  # arrondi vers le haut
+
+fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
+
+# axs est une matrice → on la transforme en liste pour itérer facilement
+axs = axs.flatten()
+
+# Boucle sur chaque variable
+for i in range(nt+nc):
+    axs[i].step(np.arange(N+1), np.ravel(X.value[i,:]))
+    if i < nt:
+        axs[i].set_title(f"xt{i+1}")
+    else:
+        axs[i].set_title(f"x{i+1-2}")
+    
+# Supprimer les subplots vides si n n'est pas multiple de cols
+for j in range(i+1, len(axs)):
+    fig.delaxes(axs[j])
+
+plt.tight_layout()
+plt.show()
