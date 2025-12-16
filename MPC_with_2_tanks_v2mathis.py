@@ -6,8 +6,8 @@ from cvxpy import *
 
 
 ########## Data ##############
-# Number of MPC blocks
-N = 200
+# Number of iterations
+N = 2000
 # MPC horizon
 # nh = 30
 nh = int(N/10)
@@ -18,7 +18,7 @@ nt = 2
 nc = 6
 # Step time
 h = 0.1
-
+x_max = 100 #nombre de véhicules max
 # Max speeds of the cells
 V = np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
 # Slopes of supply function
@@ -27,7 +27,7 @@ W = 20/3.6*np.eye(6)
 # Lengths of roads
 L = np.array([500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
 # Capacities of the cells
-Cap = 1/4.7*L.flatten()
+Cap = 1/4.7*L
 # Max flow
 Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
 
@@ -49,9 +49,12 @@ Mc = np.array([[0, 0, 0, 0, 0, 0],
                [0, 0, 0, 1, -1, 0],
                [0, 0, 0, 0, 1, -1]], dtype=float)
 
-
-# Coefficients to control the speed
-Gamma = Variable((nc, N))
+# Variables to store the values of flow, respectively for tanks and cells
+Ft = Variable((nt, nh))
+Fc = Variable((nc, nh))
+# Variables to store values of supply function and demand function
+Sf = Variable((nc, nh))
+Df = Variable((nc, nh))
 # Initial nb of vehicles in the tanks and in the cells
 Xt0 = np.array([100, 100], dtype=float).reshape(-1,1)
 Xc0 = np.array([0, 0, 0, 0, 0, 0], dtype=float).reshape(-1,1)
@@ -71,6 +74,15 @@ Xtf_1d = Constant(Xtf)   # shape (2,)
 Xcf_1d = Constant(Xcf)   # shape (6,)
 Xf = vstack([Xtf_1d, Xcf_1d])                  # shape (8,)
 
+# Describe the convex problem
+# Complete vectors Xt and Xc
+Xt = Variable((nt, nh+1))
+Xc = Variable((nc, nh+1))
+X = Variable((nt+nc, nh+1))
+Gamma = Variable((nc, nh))
+Z = Variable((nc, nh))
+# Complete vector U of commands
+U = Variable((nt, nh))
 
 # Objective function
 # obj = Minimize(sum(Xt))
@@ -104,7 +116,9 @@ for k_simu in range(0, N, M):
         constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
         constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
         for i in range(nc):
-            constr += [Df[i,k] <= Gamma[i,k] * V[i]/L[i]*X[2+i, k]]
+            constr += [Z[i, k] <= x_max * Gamma[i, k],
+                    Z[i, k] <= X[2+i, k]] # Gamma * X
+            constr += [Df[i,k] <= Z[i, k] * V[i]/L[i]]
         constr += [Fc[5, k] == Df[5, k]]
         constr += [Fc[0:5, k] <= Sf[1:6, k]]
         constr += [Fc[0:5, k] <= Df[0:5, k]]
@@ -116,7 +130,7 @@ for k_simu in range(0, N, M):
     constr += [Gamma >= 0, Gamma <= 1]
     prob = Problem(obj, constr)
 
-    prob.solve()
+    prob.solve(warm_start=True)
 
     u = U.value[:,0:M]
     
@@ -153,7 +167,6 @@ print(X_hist.shape)
 #print(prob.solver_stats.solver_name)
 #print("Problem Status: {}".format(prob.status))
 #print("Optimal value x* = : {}".format(X.value))
->>>>>>> 93db1a0f94a4260bec623174ac448303454ef1b9
 # print("Optimal solution u* = : {}".format(U.value))
 # plt.step(np.arange(N), np.ravel(U.value[1,:]))
 # plt.xlabel('Time t')
