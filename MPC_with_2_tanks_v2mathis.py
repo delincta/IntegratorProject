@@ -9,7 +9,9 @@ from cvxpy import *
 # Number of iterations
 N = 2000
 # MPC horizon
-nh = 30
+# nh = 30
+nh = int(N/10)
+M = int(nh/2)
 # Nb of tanks
 nt = 2
 # Nb of cells
@@ -77,6 +79,7 @@ Xf = vstack([Xtf_1d, Xcf_1d])                  # shape (8,)
 Xt = Variable((nt, nh+1))
 Xc = Variable((nc, nh+1))
 X = Variable((nt+nc, nh+1))
+Gamma = Variable((nc, nh))
 
 # Complete vector U of commands
 U = Variable((nt, nh))
@@ -93,52 +96,65 @@ rho = 1.0      # poids terminal (à ajuster)
 # Now we can try to penalize the number of vehicles present in the whole network
 
 obj = Minimize(sum(X))
-
-# Constraints
-constr = []
-# Dynamics
-# constr += [X[:, 0] == vstack((Xt0,Xc0)), X[:, 1:] == X[:,:N] + h*(Mt@Ft + Mc@Fc), X[:, -1] == vstack((Xtf,Xcf))]
-constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:nh] + h*(Mt@Ft + Mc@Fc)]
-for k in range(nh):
-    constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
-    # constr += [Sf[:, k] >= 0]
-    constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
-    constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
-    for i in range(nc):
-        constr += [Df[i,k] <= V[i]/L[i]*X[2+i, k]]
-    constr += [Fc[5, k] == Df[5, k]]
-    constr += [Fc[0:5, k] <= Sf[1:6, k]]
-    constr += [Fc[0:5, k] <= Df[0:5, k]]
-
-constr += [Df <= Fmax]
-constr += [Ft >= 0]
-constr += [Fc >= 0]
-constr += [Ft <= U]
-
-prob = Problem(obj, constr)
-
 X_hist = np.zeros((nt+nc, N+1))  # stockage de tous les états
 X_hist[:, 0] = X0.value.flatten(order='C')
 print(X_hist[:, 0].shape)
 U_hist = np.zeros((nt, N))    # stockage de toutes les commandes
-M = 5
 
-t = 0
-while t < N:
+
+for k_simu in range(0, N, M):
+    print(k_simu)
+
+    # Constraints
+    constr = []
+    # Dynamics
+    # constr += [X[:, 0] == vstack((Xt0,Xc0)), X[:, 1:] == X[:,:N] + h*(Mt@Ft + Mc@Fc), X[:, -1] == vstack((Xtf,Xcf))]
+    constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:nh] + h*(Mt@Ft + Mc@Fc)]
+    for k in range(nh):
+        constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
+        # constr += [Sf[:, k] >= 0]
+        constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
+        constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
+        for i in range(nc):
+            constr += [Df[i,k] <= Gamma[i,k] * V[i]/L[i]*X[2+i, k]]
+        constr += [Fc[5, k] == Df[5, k]]
+        constr += [Fc[0:5, k] <= Sf[1:6, k]]
+        constr += [Fc[0:5, k] <= Df[0:5, k]]
+
+    constr += [Df <= Fmax]
+    constr += [Ft >= 0]
+    constr += [Fc >= 0]
+    constr += [Ft <= U]
+    constr += [Gamma >= 0, Gamma <= 1]
+    prob = Problem(obj, constr)
+
     prob.solve()
 
+    u = U.value[:,0:M]
+    
+    U_hist[:, k_simu:k_simu+M] = u
+    X_hist[:, k_simu+1:k_simu+M+1] = X.value[:,0:M]
+    # print(X0)
+    X0 = X.value[:,M-1].reshape(-1,1)
+    # print(X0) 
+       
 
-    # Appliquer M pas ou jusqu'à la fin
-    for j in range(M):
-        if t >= N:
-            break
-        0 <= j < nh
-        u = U.value[:,j]
+# t = 0
+# while t < N:
+#     prob.solve()
+
+
+#     # Appliquer M pas ou jusqu'à la fin
+#     for j in range(M):
+#         if t >= N:
+#             break
+#         0 <= j < nh
+#         u = U.value[:,j]
         
-        U_hist[:, t] = u
-        X_hist[:, t+1] = X.value[:,j]
+#         U_hist[:, t] = u
+#         X_hist[:, t+1] = X.value[:,j]
         
-        t += 1
+#         t += 1
 
 X_hist = X_hist
 U_hist = U_hist
