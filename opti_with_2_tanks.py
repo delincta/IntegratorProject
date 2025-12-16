@@ -6,10 +6,10 @@ from cvxpy import *
 
 
 ########## Data ##############
-# Number of MPC blocks
+# Number of iterations
 N = 200
 # MPC horizon
-nh = 20
+nh = 30
 # Nb of tanks
 nt = 2
 # Nb of cells
@@ -25,7 +25,7 @@ W = 20/3.6*np.eye(6)
 # Lengths of roads
 L = np.array([500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
 # Capacities of the cells
-Cap = 1/4.7*L.flatten()
+Cap = 1/4.7*L
 # Max flow
 Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
 
@@ -47,18 +47,14 @@ Mc = np.array([[0, 0, 0, 0, 0, 0],
                [0, 0, 0, 1, -1, 0],
                [0, 0, 0, 0, 1, -1]], dtype=float)
 
-<<<<<<< HEAD
-
+# Variables to store the values of flow, respectively for tanks and cells
+Ft = Variable((nt, N))
+Fc = Variable((nc, N))
+# Variables to store values of supply function and demand function
+Sf = Variable((nc, N))
+Df = Variable((nc, N))
 # Coefficients to control the speed
 Gamma = Variable((nc, N))
-=======
-# Variables to store the values of flow, respectively for tanks and cells
-Ft = Variable((nt, nh))
-Fc = Variable((nc, nh))
-# Variables to store values of supply function and demand function
-Sf = Variable((nc, nh))
-Df = Variable((nc, nh))
->>>>>>> 93db1a0f94a4260bec623174ac448303454ef1b9
 # Initial nb of vehicles in the tanks and in the cells
 Xt0 = np.array([100, 100], dtype=float).reshape(-1,1)
 Xc0 = np.array([0, 0, 0, 0, 0, 0], dtype=float).reshape(-1,1)
@@ -70,25 +66,21 @@ Xcf = np.array([0, 0, 0, 0, 0, 0], dtype=float).reshape(-1,1)
 # Constants converted in 1D
 Xt0_1d = Constant(Xt0)   # shape (2,)
 Xc0_1d = Constant(Xc0)  # shape (6,)
-
 X0 = vstack([Xt0_1d, Xc0_1d])                 # shape (8,)
-print(X0.shape)
+
 # (optionnel si tu veux une cible souple plus tard)
 Xtf_1d = Constant(Xtf)   # shape (2,)
 Xcf_1d = Constant(Xcf)   # shape (6,)
 Xf = vstack([Xtf_1d, Xcf_1d])                  # shape (8,)
 
-<<<<<<< HEAD
-=======
 # Describe the convex problem
 # Complete vectors Xt and Xc
-Xt = Variable((nt, nh+1))
-Xc = Variable((nc, nh+1))
-X = Variable((nt+nc, nh+1))
+Xt = Variable((nt, N+1))
+Xc = Variable((nc, N+1))
+X = Variable((nt+nc, N+1))
 
 # Complete vector U of commands
-U = Variable((nt, nh))
->>>>>>> 93db1a0f94a4260bec623174ac448303454ef1b9
+U = Variable((nt, N))
 
 # Objective function
 # obj = Minimize(sum(Xt))
@@ -101,20 +93,15 @@ rho = 1.0      # poids terminal (à ajuster)
 #     rho * sum_squares(X[:, -1] - Xf))
 # Now we can try to penalize the number of vehicles present in the whole network
 
-Ttot = N * nh
+obj = Minimize(sum(X))
 
-<<<<<<< HEAD
-X_sol = np.zeros((nt+nc, Ttot + 1))
-U_sol = np.zeros((nt, Ttot))
-
-X_sol[:, 0] = X0.value.flatten()
-=======
 # Constraints
 constr = []
 # Dynamics
 # constr += [X[:, 0] == vstack((Xt0,Xc0)), X[:, 1:] == X[:,:N] + h*(Mt@Ft + Mc@Fc), X[:, -1] == vstack((Xtf,Xcf))]
-constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:nh] + h*(Mt@Ft + Mc@Fc)]
-for k in range(nh):
+constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:N] + h*(Mt@Ft + Mc@Fc)]
+
+for k in range(N):
     constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
     # constr += [Sf[:, k] >= 0]
     constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
@@ -124,102 +111,21 @@ for k in range(nh):
     constr += [Fc[5, k] == Df[5, k]]
     constr += [Fc[0:5, k] <= Sf[1:6, k]]
     constr += [Fc[0:5, k] <= Df[0:5, k]]
->>>>>>> 93db1a0f94a4260bec623174ac448303454ef1b9
 
-for j in range(N):
-    # Complete vectors Xt and Xc
-    X = Variable((nt+nc, nh+1))
-    # Variables to store the values of flow, respectively for tanks and cells
-    Ft = Variable((nt, nh))
-    Fc = Variable((nc, nh))
-    # Variables to store values of supply function and demand function
-    Sf = Variable((nc, nh))
-    Df = Variable((nc, nh))
+constr += [Df <= Fmax]
+constr += [Ft >= 0]
+constr += [Fc >= 0]
+constr += [Ft <= U]
+# constr += [Gamma >= 0, Gamma <= 1]
 
-    # Complete vector U of commands
-    U = Variable((nt, nh))
-    # Cost function to minimize
-    # obj = Minimize(sum(X))
-    # 2nd option
-    obj = Minimize(h * (sum(X[0:nt, :]) + 0.1 * sum(X[nt:, :])))
-    # Constraints
-    constr = []
-    constr += [X[:, 0:1] == X0]
-    for k in range(nh):
-        # Dynamics
-        # constr += [X[:, 0] == vstack((Xt0,Xc0)), X[:, 1:] == X[:,:N] + h*(Mt@Ft + Mc@Fc), X[:, -1] == vstack((Xtf,Xcf))]
-        constr += [X[:, k+1] == X[:, k] + h*(Mt @ Ft[:, k] + Mc @ Fc[:, k])]
+prob = Problem(obj, constr)
 
-        constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
-        # constr += [Sf[:, k] >= 0]
-        constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
-        constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
-        constr += [Df[:, k] <= multiply(V.flatten()/L.flatten(), X[2:8, k])]
-        # for i in range(nc):
-        #     constr += [Df[i,k] <= V[i]/L[i]*X[2+i, k]]
-        constr += [Fc[5, k] == Df[5, k]]
-        constr += [Fc[0:5, k] <= Sf[1:6, k]]
-        constr += [Fc[0:5, k] <= Df[0:5, k]]
-
-    constr += [Df <= Fmax]
-    constr += [Ft >= 0]
-    constr += [Fc >= 0]
-    constr += [Ft <= U]
-    # constr += [Gamma >= 0, Gamma <= 1]
-
-    prob = Problem(obj, constr)
-
-    # solve the problem
-    prob.solve(solver=GUROBI)
-
-    # print(prob.solver_stats.solver_name)
-    print("Problem Status: {}".format(prob.status))
-    # print("Optimal value x* = : {}".format(X.value))
-
-    X0 = X.value[:, -1].reshape(-1, 1)
-
-
-    for i in range(nh):
-        t = j*nh + i
-        X_sol[:, t+1] = X.value[:, i+1]
-        U_sol[:, t]   = U.value[:, i]
-
-<<<<<<< HEAD
-
-=======
-X_hist = np.zeros((nt+nc, N+1))  # stockage de tous les états
-X_hist[:, 0] = X0.value.flatten(order='C')
-print(X_hist[:, 0].shape)
-U_hist = np.zeros((nt, N))    # stockage de toutes les commandes
-M = 5
-
-t = 0
-while t < N:
-    prob.solve()
-
-
-    # Appliquer M pas ou jusqu'à la fin
-    for j in range(M):
-        if t >= N:
-            break
-        0 <= j < nh
-        u = U.value[:,j]
-        
-        U_hist[:, t] = u
-        X_hist[:, t+1] = X.value[:,j]
-        
-        t += 1
-
-X_hist = X_hist
-U_hist = U_hist
-print(X_hist.shape)
 # solve the problem
-#prob.solve(solver=GUROBI)
+prob.solve(solver=GUROBI)
 
-#print(prob.solver_stats.solver_name)
-#print("Problem Status: {}".format(prob.status))
-#print("Optimal value x* = : {}".format(X.value))
->>>>>>> 93db1a0f94a4260bec623174ac448303454ef1b9
+print(prob.solver_stats.solver_name)
+print("Problem Status: {}".format(prob.status))
+print("Optimal value x* = : {}".format(X.value))
 # print("Optimal solution u* = : {}".format(U.value))
 # plt.step(np.arange(N), np.ravel(U.value[1,:]))
 # plt.xlabel('Time t')
@@ -240,11 +146,7 @@ axs = axs.flatten()
 
 # Boucle sur chaque variable
 for i in range(nt):
-<<<<<<< HEAD
-    axs[i].step(np.arange(Ttot), U_sol[i, :])
-=======
-    axs[i].plot(np.arange(N), (U_hist[i,:]))
->>>>>>> 93db1a0f94a4260bec623174ac448303454ef1b9
+    axs[i].step(np.arange(N), np.ravel(U.value[i,:]))
     axs[i].set_title(f"u{i+1}")
 
 # Supprimer les subplots vides si n n'est pas multiple de cols
@@ -266,11 +168,7 @@ axs = axs.flatten()
 
 # Boucle sur chaque variable
 for i in range(nt+nc):
-<<<<<<< HEAD
-    axs[i].step(np.arange(Ttot+1), X_sol[i, :])
-=======
-    axs[i].step(np.arange(N+1), np.ravel(X_hist[i,:]))
->>>>>>> 93db1a0f94a4260bec623174ac448303454ef1b9
+    axs[i].step(np.arange(N+1), np.ravel(X.value[i,:]))
     if i < nt:
         axs[i].set_title(f"xt{i+1}")
     else:
