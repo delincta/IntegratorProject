@@ -8,7 +8,7 @@ class Cell:
         self.v = v # car speed
         self.fmax = fmax # max flow
         self.w = w # slope of supply function
-        self.c = l/4.7 # average car length seems to be 4.7m, and we consider a single road
+        self.c = w*l/4.7 # average car length seems to be 4.7m, and we consider a single road
         self.x = [x_0] # trafic volume
         self.uref = uref
 

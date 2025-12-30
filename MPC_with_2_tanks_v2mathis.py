@@ -7,7 +7,7 @@ from cvxpy import *
 
 ########## Data ##############
 # Number of iterations
-N = 2000
+N = 4000
 # MPC horizon
 # nh = 30
 nh = int(N/10)
@@ -27,7 +27,7 @@ W = 20/3.6*np.eye(6)
 # Lengths of roads
 L = np.array([500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
 # Capacities of the cells
-Cap = 1/4.7*L
+Cap = 1/4.7*L *20/3.6 #2voies mobilisées
 # Max flow
 Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
 
