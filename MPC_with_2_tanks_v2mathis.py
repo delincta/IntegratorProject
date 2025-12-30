@@ -7,9 +7,8 @@ from cvxpy import *
 
 ########## Data ##############
 # Number of iterations
-N = 4000
+N = 2000
 # MPC horizon
-# nh = 30
 nh = int(N/10)
 M = int(nh/2)
 # Nb of tanks
@@ -18,16 +17,15 @@ nt = 2
 nc = 6
 # Step time
 h = 0.1
-x_max = 100 #nombre de véhicules max
+x_max = 100 # Max number of vehicles/ only used to find Gamma
 # Max speeds of the cells
 V = np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
 # Slopes of supply function
 W = 20/3.6*np.eye(6)
-# W = np.array([ 20/3.6,  20/3.6,  20/3.6,  20/3.6,  20/3.6,  20/3.6], dtype=float).reshape(nc,1)
 # Lengths of roads
 L = np.array([500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
 # Capacities of the cells
-Cap = 1/4.7*L *20/3.6 #2voies mobilisées
+Cap = 1/4.7*L *20/3.6 *1 # 1 voie mobilisée
 # Max flow
 Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
 
@@ -84,31 +82,31 @@ Z = Variable((nc, nh))
 # Complete vector U of commands
 U = Variable((nt, nh))
 
-# Objective function
+####### Different objective function 
 # obj = Minimize(sum(Xt))
-rho = 1.0      # poids terminal (à ajuster)
+# rho = 1.0      # poids terminal (à ajuster)
 
 # Objective function penalizes the number of vehicles in the tanks but it doesn't care about the number of vehicles 
 # in the cells => the goal is to empty the tanks the fastest possible
-# obj = Minimize(
-#     sum_squares(X[0:2,:]) +
-#     rho * sum_squares(X[:, -1] - Xf))
-# Now we can try to penalize the number of vehicles present in the whole network
+# obj = Minimize(sum_squares(X[0:2,:]) + rho * sum_squares(X[:, -1] - Xf))
+#######
 
+######### Cost function #########
+# Now we can try to penalize the number of vehicles present in the whole network
 obj = Minimize(sum(X))
-X_hist = np.zeros((nt+nc, N+1))  # stockage de tous les états
+######### We store states and inputs in tables #########
+X_hist = np.zeros((nt+nc, N+1))  
 X_hist[:, 0] = X0.value.flatten(order='C')
 print(X_hist[:, 0].shape)
-U_hist = np.zeros((nt, N))    # stockage de toutes les commandes
+U_hist = np.zeros((nt, N))    
 
 
 for k_simu in range(0, N, M):
     print(k_simu)
 
-    # Constraints
+    ####### Constraints #########
     constr = []
     # Dynamics
-    # constr += [X[:, 0] == vstack((Xt0,Xc0)), X[:, 1:] == X[:,:N] + h*(Mt@Ft + Mc@Fc), X[:, -1] == vstack((Xtf,Xcf))]
     constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:nh] + h*(Mt@Ft + Mc@Fc)]
     for k in range(nh):
         constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
@@ -116,9 +114,10 @@ for k_simu in range(0, N, M):
         constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
         constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
         for i in range(nc):
-            constr += [Z[i, k] <= x_max * Gamma[i, k],
-                    Z[i, k] <= X[2+i, k]] # Gamma * X
-            constr += [Df[i,k] <= Z[i, k] * V[i]/L[i]]
+            # constr += [Z[i, k] <= x_max * Gamma[i, k],
+            #         Z[i, k] <= X[2+i, k]] # Gamma * X
+            # constr += [Df[i,k] <= Z[i, k] * V[i]/L[i]]
+            constr += [Df[i,k] <= V[i]/L[i]*X[2+i, k]]
         constr += [Fc[5, k] == Df[5, k]]
         constr += [Fc[0:5, k] <= Sf[1:6, k]]
         constr += [Fc[0:5, k] <= Df[0:5, k]]
@@ -127,7 +126,7 @@ for k_simu in range(0, N, M):
     constr += [Ft >= 0]
     constr += [Fc >= 0]
     constr += [Ft <= U]
-    constr += [Gamma >= 0, Gamma <= 1]
+    # constr += [Gamma >= 0, Gamma <= 1]
     prob = Problem(obj, constr)
 
     prob.solve(warm_start=True)
@@ -139,43 +138,15 @@ for k_simu in range(0, N, M):
     # print(X0)
     X0 = X.value[:,M-1].reshape(-1,1)
     # print(X0) 
-       
 
-# t = 0
-# while t < N:
-#     prob.solve()
-
-
-#     # Appliquer M pas ou jusqu'à la fin
-#     for j in range(M):
-#         if t >= N:
-#             break
-#         0 <= j < nh
-#         u = U.value[:,j]
-        
-#         U_hist[:, t] = u
-#         X_hist[:, t+1] = X.value[:,j]
-        
-#         t += 1
-
+########## Update sequences of states and inputs ############
 X_hist = X_hist
 U_hist = U_hist
 print(X_hist.shape)
-# solve the problem
-#prob.solve(solver=GUROBI)
 
-#print(prob.solver_stats.solver_name)
-#print("Problem Status: {}".format(prob.status))
-#print("Optimal value x* = : {}".format(X.value))
-# print("Optimal solution u* = : {}".format(U.value))
-# plt.step(np.arange(N), np.ravel(U.value[1,:]))
-# plt.xlabel('Time t')
-# plt.ylabel('Command u1(t)')
-# plt.step(np.arange(N), np.ravel(U.value[0,:]))
-# plt.xlabel('Time t')
-# plt.ylabel('Command u1(t)')
-# plt.show()
-
+###################### Plot the time #######################
+t_inputs = np.arange(N)*h
+t_states = np.arange(N+1)*h
 ####################### Plot the inputs ######################
 cols = 2
 rows = (nt + cols - 1) // cols  # arrondi vers le haut
@@ -187,7 +158,7 @@ axs = axs.flatten()
 
 # Boucle sur chaque variable
 for i in range(nt):
-    axs[i].plot(np.arange(N), (U_hist[i,:]))
+    axs[i].plot(t_inputs, (U_hist[i,:]))
     axs[i].set_title(f"u{i+1}")
 
 # Supprimer les subplots vides si n n'est pas multiple de cols
@@ -196,7 +167,6 @@ for j in range(i+1, len(axs)):
 
 plt.tight_layout()
 plt.show()
-
 
 ####################### Plot the states ######################
 cols = 2
@@ -209,7 +179,7 @@ axs = axs.flatten()
 
 # Boucle sur chaque variable
 for i in range(nt+nc):
-    axs[i].step(np.arange(N+1), np.ravel(X_hist[i,:]))
+    axs[i].step(t_states, np.ravel(X_hist[i,:]))
     if i < nt:
         axs[i].set_title(f"xt{i+1}")
     else:
