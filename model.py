@@ -1,5 +1,8 @@
+import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
+import cvxpy as cp
+
 
 class Cell:
     def __init__(self, name, l, v, fmax, w, x_0, uref):
@@ -34,14 +37,14 @@ class Network:
     def create_graph(self):
         G = nx.DiGraph()
 
-        # Créer les sommets comme objets Sommet
+        # Create nodes as items of class Sommet
         sommets_objets = {name: Sommet(name) for name in self.vertices}
 
-        # Ajouter les sommets au graphe
+        # Add nodes to graph
         for sommet in sommets_objets.values():
             G.add_node(sommet)
 
-        # Ajouter les arêtes
+        # Add edges
         for nom, voisins in self.vertices.items():
             for voisin in voisins:
                 G.add_edge(sommets_objets[nom], sommets_objets[voisin])
@@ -59,7 +62,10 @@ class Simulation:
         self.k_old = 0
         self.t_old = 0
 
-
+    # cell i: headnode
+    # cell j: tailnode
+    # k: variable to plot the flow f23
+    # Computes the flow fij
     def f(self,i,j,k):
         if i.startswith("T"):
             return (min(float("inf"),self.X[j].s_fcn()))
@@ -76,25 +82,49 @@ class Simulation:
                     # print("min = s_fcn")
             
             return (min(self.X[i].d_fcn(),self.X[j].s_fcn()))
-
     
+    # Computes the flow fij to obtain same result than mpc algo
+    def f_mpc(self,i,j,k,Gamma):
+        if i.startswith("T"):
+            return (min(float("inf"),self.X[j].s_fcn()))
+        else:
+            if i == "X2" and j == "X3" and k != self.k_old:
+                self.k_old += 1
+                self.value_s_fcn.append(self.X[j].s_fcn())
+                # print(self.k_old)
+                if self.X[i].d_fcn() < self.X[j].s_fcn():
+                    self.verif_f.append(-1)
+                    # print("min = d_fcn")
+                else:
+                    self.verif_f.append(1)
+                    # print("min = s_fcn")
+            
+            return (min(Gamma[self.X_index[i], k]*self.X[i].d_fcn(),self.X[j].s_fcn()))
+
+    # Defines the flow of the last cell => equal to demand function
     def f_end(self,i):
         return (self.X[i].d_fcn())
     
+    # Defines the flow of the last cell to obtain same result than mpc algo
+    def f_end_mpc(self,i,k,Gamma):
+        return (Gamma[self.X_index[i], k]*self.X[i].d_fcn())
+    
+    # Defines the flow of a tank as a fraction of the nb of vehicles in the tank, with 0 < u < 1
     def f_tank(self,i,s,u):
         return min(u*self.T[i].x[-1], self.X[s].s_fcn())
     
-    def new_f_tank(self,i,s,t):
+    # Defines the flow of a tank with uref, a nb of vehicles directly
+    def new_f_tank(self,i,s):
         u =min(self.T[i].uref,self.T[i].x[-1])
         return min(u, self.X[s].s_fcn())
-        # if t - self.t_old > 5:
-        #     self.t_old = t
-        # if t - self.t_old > 5 or t == self.t_old:
-        #     u =min(uref,self.T[i].x[-1])
-        #     return min(u, self.X[s].s_fcn())
-        # else:
-        #     return 0
 
+    
+    # Computes the outflow of a tank to obtain same result than mpc algo
+    def new_f_tank_mpc(self,i,s,k,Alpha):
+        u =min(self.T[i].uref,self.T[i].x[-1])
+        return min(Alpha[self.T_index[i], k]*u, self.X[s].s_fcn())
+
+    # Decides the value of uref to empty the tanks one after another
     def command_manager(self,tanks_list,uref):
         # tanks_list = list(self.T.keys())
         if len(tanks_list) != 0:
@@ -105,7 +135,16 @@ class Simulation:
             else:
                 self.T[emptying_tank].uref = uref
                 # emptying_tank = tanks_list[-1]
-        
+    
+    # Gives the values of uref found by mpc algo
+    def command_manager_mpc(self, tanks_list, u, k):
+        # nb of rows and columns
+        n_rows, n_col = u.shape
+        for i in range(n_rows):
+            self.T[tanks_list[i]].uref = float(u[i,k])
+
+            # print("u[i,k] =", u[i,k], type(u[i,k]))
+            # print("uref =", self.T[tanks_list[i]].uref, type(self.T[tanks_list[i]].uref))
 
         
         
@@ -142,7 +181,9 @@ class Simulation:
                 self.X[i.name] = Cell(i.name,*v_properties[i.name])
         # print(self.T)
         # print(self.X)
-        return self.T, self.X
+        self.X_index = {name: idx for idx, name in enumerate(self.X.keys())}
+        self.T_index = {name: idx for idx, name in enumerate(self.T.keys())}
+        return self.T, self.X, self.X_index, self.T_index
         
     def simu(self, h, N):
         # i = self.X["X1"]
@@ -159,7 +200,7 @@ class Simulation:
             for t in self.T:
                 # calculer u
                 d = list(self.graph.successors(self.sommets[t]))
-                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank(t,s.name,k*h)) for s in d)) 
+                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank(t,s.name)) for s in d)) 
             for i in self.X:
                 l = list(self.graph.predecessors(self.sommets[i]))
                 # print("Voisins de " + str(i.name) + ": ", l)
@@ -168,14 +209,131 @@ class Simulation:
                     somme = 0
                     for j in l:
                         if j.name.startswith("T"):
-                            somme += self.new_f_tank(j.name,i,k*h)
+                            somme += self.new_f_tank(j.name,i)
                         else:
                             somme += self.f(j.name,i,k)
 
                     self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f(i,j.name,k) for j in d))) # ordre important
                 else:
                     self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i,k) for j in l) - self.f_end(i))) # ordre important
-  
+    
+    def simu_mpc(self, h, N, u, Gamma, Alpha):
+        tanks_list = list(self.T.keys())
+        for k in range (N):
+            self.command_manager_mpc(tanks_list, u, k-1)
+            for t in self.T:
+                d = list(self.graph.successors(self.sommets[t]))
+                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank_mpc(t,s.name,k,Alpha)) for s in d)) 
+            for i in self.X:
+                l = list(self.graph.predecessors(self.sommets[i]))
+                # print("Voisins de " + str(i.name) + ": ", l)
+                d = list(self.graph.successors(self.sommets[i]))
+                if len(d) != 0:
+                    somme = 0
+                    for j in l:
+                        if j.name.startswith("T"):
+                            somme += self.new_f_tank_mpc(j.name,i,k,Alpha)
+                        else:
+                            somme += self.f_mpc(j.name,i,k,Gamma)
+
+                    self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f_mpc(i,j.name,k,Gamma) for j in d))) # ordre important
+                else:
+                    self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f_mpc(j.name,i,k,Gamma) for j in l) - self.f_end_mpc(i,k,Gamma))) # ordre important
+
+
+    def verif_simu(self, h, M, N, nh, nt, nc, V, W, L, Cap, Fmax, Mt, Mc):
+        # Variables to store the values of flow, respectively for tanks and cells
+        Ft = cp.Variable((nt, nh))
+        Fc = cp.Variable((nc, nh))
+        # Variables to store values of supply function and demand function
+        Sf = cp.Variable((nc, nh))
+        Df = cp.Variable((nc, nh))
+        # Initial nb of vehicles in the tanks and in the cells
+        Xt0 = np.array([100, 100], dtype=float).reshape(-1,1)
+        Xc0 = np.array([0, 0, 0, 0, 0, 0], dtype=float).reshape(-1,1)
+        # Constants converted in 1D
+        Xt0_1d = cp.Constant(Xt0)   # shape (2,)
+        Xc0_1d = cp.Constant(Xc0)  # shape (6,)
+
+        X0 = cp.vstack([Xt0_1d, Xc0_1d])                 # shape (8,)
+        print(X0.shape)
+
+        # Describe the convex problem
+        X = cp.Variable((nt+nc, nh+1))
+        
+        Gamma = np.zeros((nc, M))
+        Alpha = np.zeros((nt, M))
+
+        # Complete vector U of commands
+        U = cp.Variable((nt, nh))
+
+        ######### Cost function #########
+        # Now we can try to penalize the number of vehicles present in the whole network
+        obj = cp.Minimize(cp.sum(X))
+        ######### We store states and inputs in tables #########
+        X_hist = np.zeros((nt+nc, N+1))  
+        X_hist[:, 0] = X0.value.flatten(order='C')
+        print(X_hist[:, 0].shape)
+        U_hist = np.zeros((nt, N))    
+
+
+        for k_simu in range(0, N, M):
+            print(k_simu)
+
+            ####### Constraints #########
+            constr = []
+            # Dynamics
+            constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:nh] + h*(Mt@Ft + Mc@Fc)]
+            for k in range(nh):
+                constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
+                # constr += [Sf[:, k] >= 0]
+                constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
+                constr += [Ft[:, k] <= cp.vstack([Sf[0, k], Sf[3, k]])]
+                for i in range(nc):
+                    # constr += [Z[i, k] <= x_max * Gamma[i, k],
+                    #         Z[i, k] <= X[2+i, k]] # Gamma * X
+                    # constr += [Df[i,k] <= Z[i, k] * V[i]/L[i]]
+                    constr += [Df[i,k] <= V[i]/L[i]*X[2+i, k]]
+                constr += [Fc[5, k] == Df[5, k]]
+                constr += [Fc[0:5, k] <= Sf[1:6, k]]
+                constr += [Fc[0:5, k] <= Df[0:5, k]]
+
+            constr += [Df <= Fmax]
+            constr += [Ft >= 0]
+            constr += [Fc >= 0]
+            constr += [Ft <= U]
+            # constr += [Gamma >= 0, Gamma <= 1]
+            prob = cp.Problem(obj, constr)
+
+            prob.solve(warm_start=True)
+
+            # print("U.value =", U.value)
+
+            u = U.value[:,0:M]
+            
+            U_hist[:, k_simu:k_simu+M] = u
+            X_hist[:, k_simu+1:k_simu+M+1] = X.value[:,0:M]
+            # print(X0)
+            X0 = X.value[:,M-1].reshape(-1,1)
+            # print(X0) 
+
+            # We compute Gamma
+            for i in range(nc):
+                for j in range(M):
+                    Gamma[i,j] = float(Fc[i,j].value/Df[i,j].value)
+            # We compute Alpha
+            for i in range(nt):
+                for j in range(M):
+                    Alpha[i,j] = float(Ft[i,j].value/U[i,j].value)
+            # We simulate the system
+            self.simu_mpc(h, M, u, Gamma, Alpha)
+
+        ########## Update sequences of states and inputs ############
+        X_hist = X_hist
+        U_hist = U_hist
+        print(X_hist.shape)
+        return X_hist, U_hist
+
 
     def results(self, h, N):
         t = []
@@ -220,21 +378,64 @@ class Simulation:
         plt.tight_layout()
         plt.show()
 
-    # To display with subplots
-    def results_2(self, h, N):
-        t = []
-        for k in range(N):
-            t.append(k*h)
+    def create_subplot_mpc(self, table, t, label):
+        n_rows, n_col = table.shape
+
+        # Déterminer la grille (ici 2 colonnes)
+        cols = 2
+        rows = (n_rows + cols - 1) // cols  # arrondi vers le haut
+
+        fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
+
+        # axs est une matrice → on la transforme en liste pour itérer facilement
+        axs = axs.flatten()
+
+        # Boucle sur chaque variable
+        for i in range(n_rows):
+            axs[i].plot(t,table[i,:])
+            axs[i].set_title(label + str(i+1) + " MPC")
         
-        plt.figure
-        plt.plot(t,self.value_s_fcn)
-        plt.plot(t,self.verif_f)
-        plt.title("y(t) = -1 if f_23(x)=d_fcn // y(t) = +1 if f_23(x)=s_fcn")
+        # Supprimer les subplots vides si n n'est pas multiple de cols
+        for j in range(i+1, len(axs)):
+            fig.delaxes(axs[j])
+
+        plt.tight_layout()
         plt.show()
 
-        self.create_subplot(self.T, t)
-        self.create_subplot(self.X, t)
 
+    # To display with subplots
+    def results_2(self, h, N):
+        t_inputs = np.arange(N+1)*h
+        t_states = np.arange(N+1)*h
+        
+        plt.figure
+        # plt.plot(t,self.value_s_fcn)
+        # plt.plot(t,self.verif_f)
+        # plt.title("y(t) = -1 if f_23(x)=d_fcn // y(t) = +1 if f_23(x)=s_fcn")
+        # plt.show()
+
+        self.create_subplot(self.T, t_inputs)
+        self.create_subplot(self.X, t_states)
+
+
+    # To display with subplots
+    def results_2_mpc(self, h, N, tab_u, tab_x):
+        t_inputs = np.arange(N)*h
+        t_states = np.arange(N+1)*h
+        
+        plt.figure
+        # plt.plot(t,self.value_s_fcn)
+        # plt.plot(t,self.verif_f)
+        # plt.title("y(t) = -1 if f_23(x)=d_fcn // y(t) = +1 if f_23(x)=s_fcn")
+        # plt.show()
+
+        self.create_subplot(self.T, t_states)
+        self.create_subplot(self.X, t_states)
+
+        self.create_subplot_mpc(tab_x[0:2,:], t_states, "T")
+        self.create_subplot_mpc(tab_x[2:,:], t_states, "X")
+        # self.create_subplot_mpc(tab_u, t_inputs)
+        
 
 
                 

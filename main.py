@@ -1,3 +1,5 @@
+# Import libraries
+import numpy as np
 import networkx as nx
 import matplotlib.pyplot as plt
 
@@ -43,10 +45,60 @@ positions = {
 print(graph.nodes)
 print(graph.edges)
 
-
+####################  To visualize the graph only ###################
 # nx.draw(graph, pos=positions, with_labels=True)
 # plt.show()
 
+####################  To simulate the system and plot results ###################
+# simu.setting(v_properties)
+# simu.simu(0.01,100000*2)
+# simu.results_2(0.01,100000*2)
+
+
+######################  Verification of simulator  ##########################
+
+
+
+# Number of iterations
+N = 2000
+# MPC horizon
+nh = int(N/10)
+M = int(nh/2)
+# Nb of tanks
+nt = 2
+# Nb of cells
+nc = 6
+# Step time
+h = 0.1
+# Max speeds of the cells
+V = np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
+# Slopes of supply function
+W = 20/3.6*np.eye(6)
+# Lengths of roads
+L = np.array([500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
+# Capacities of the cells
+Cap = 1/4.7*L *20/3.6 *1 # 1 voie mobilisée
+# Max flow
+Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
+
+Mt = np.array([[-1, 0],
+               [0, -1], 
+               [1, 0],
+               [0, 0],
+               [0, 0],
+               [0, 1],
+               [0, 0],
+               [0, 0]], dtype=float)
+
+Mc = np.array([[0, 0, 0, 0, 0, 0],
+               [0, 0, 0, 0, 0, 0], 
+               [-1, 0, 0, 0, 0, 0],
+               [1, -1, 0, 0, 0, 0],
+               [0, 1, -1, 0, 0, 0],
+               [0, 0, 1, -1, 0, 0],
+               [0, 0, 0, 1, -1, 0],
+               [0, 0, 0, 0, 1, -1]], dtype=float)
+
 simu.setting(v_properties)
-simu.simu(0.01,100000*2)
-simu.results_2(0.01,100000*2)
+X_hist, U_hist = simu.verif_simu(h, M, N, nh, nt, nc, V, W, L, Cap, Fmax, Mt, Mc)
+simu.results_2_mpc(h, N, U_hist, X_hist)

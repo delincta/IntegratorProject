@@ -77,6 +77,7 @@ Xf = vstack([Xtf_1d, Xcf_1d])                  # shape (8,)
 Xt = Variable((nt, nh+1))
 Xc = Variable((nc, nh+1))
 X = Variable((nt+nc, nh+1))
+# Z and Gamma not used
 Gamma = Variable((nc, nh))
 Z = Variable((nc, nh))
 # Complete vector U of commands
