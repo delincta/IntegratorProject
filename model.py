@@ -61,6 +61,8 @@ class Simulation:
         self.value_s_fcn=[0]
         self.k_old = 0
         self.t_old = 0
+        self.T_index = {}
+        self.X_index = {}
 
     # cell i: headnode
     # cell j: tailnode
@@ -313,9 +315,9 @@ class Simulation:
             
             U_hist[:, k_simu:k_simu+M] = u
             X_hist[:, k_simu+1:k_simu+M+1] = X.value[:,0:M]
-            # print(X0)
-            X0 = X.value[:,M-1].reshape(-1,1)
-            # print(X0) 
+
+            # We set X0 to the last vector X given by the MPC algo
+            X0 = X.value[:,M-1].reshape(-1,1) 
 
             # We compute Gamma
             for i in range(nc):
@@ -327,6 +329,16 @@ class Simulation:
                     Alpha[i,j] = float(Ft[i,j].value/U[i,j].value)
             # We simulate the system
             self.simu_mpc(h, M, u, Gamma, Alpha)
+
+            # We set X0 to the last states X computed by the simulator
+            # for i in self.T:
+            #     Xt0[self.T_index[i],0] = self.T[i].x[-1]
+            # for i in self.X:
+            #     Xc0[self.X_index[i],0] = self.X[i].x[-1]
+            # Xt0_1d = cp.Constant(Xt0)
+            # Xc0_1d = cp.Constant(Xc0)
+            # X0 = cp.vstack([Xt0_1d, Xc0_1d])
+
 
         ########## Update sequences of states and inputs ############
         X_hist = X_hist
