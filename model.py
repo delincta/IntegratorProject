@@ -100,7 +100,6 @@ class Simulation:
                 else:
                     self.verif_f.append(1)
                     # print("min = s_fcn")
-            
             return (min(Gamma[self.X_index[i], k]*self.X[i].d_fcn(),self.X[j].s_fcn()))
 
     # Defines the flow of the last cell => equal to demand function

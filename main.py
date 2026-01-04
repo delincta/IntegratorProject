@@ -71,7 +71,7 @@ nc = 6
 # Step time
 h = 0.1
 # Max speeds of the cells
-V = np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
+V = 1/3.6*np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
 # Slopes of supply function
 W = 20/3.6*np.eye(6)
 # Lengths of roads
