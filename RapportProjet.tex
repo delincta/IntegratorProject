@@ -1,0 +1,181 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{amsmath}
+\usepackage[a4paper,margin=1.5cm]{geometry}
+
+\title{ProjetIntegrateurMPC}
+\author{mathis.poteau28 }
+\date{December 2025}
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+
+
+\section{Model}
+
+On considère un réseau orienté $G=(V,E)$ composé de deux types de sommets :
+\begin{itemize}
+    \item $\mathcal{T}$ : ensemble des \textbf{cuves} (réservoirs),
+    \item $\mathcal{X}$ : ensemble des \textbf{cellules de transport} (tunnel).
+\end{itemize}
+On a $V = \mathcal{T} \cup \mathcal{X}$ et $\mathcal{T} \cap \mathcal{X} = \emptyset$.
+
+Le temps est discrétisé avec un pas $h > 0$ :
+\[
+t_k = k h, \quad k = 0,1,\dots,K.
+\]
+
+\subsection{Variables d'état et de commande}
+
+Pour tout $k$ :
+\begin{itemize}
+    \item $x_T(k)$ : volume d’eau dans la cuve $T \in \mathcal{T}$,
+    \item $x_i(k)$ : volume d’eau dans la cellule $i \in \mathcal{X}$,
+    \item $u_T(k) \in [0,1]$ : commande d’ouverture de la vanne de la cuve $T$,
+    \item $f_{ij}(k) \ge 0$ : flux entre les sommets $i \to j$,
+    \item $\mu_i(k)$ : débit de sortie hors réseau pour les cellules terminales.
+\end{itemize}
+
+\subsection{Fonctions de demande et d’offre}
+
+Pour chaque cellule $i \in \mathcal{X}$, on définit :
+
+\paragraph{Fonction de demande (d’après le code Python)}
+\[
+d_i(x_i(k)) =\gamma_i  \min\left(  \frac{v_i}{l_i} x_i(k) ,\; C_i \right),
+\]
+où $v_i$ est la vitesse, $l_i$ la longueur de la cellule, $C_i$ la capacité maximale et $\gamma_i \in \begin{bmatrix}
+    0, 1
+\end{bmatrix}$ une commande permettant de contrôler la vitesse des véhicules.
+
+\paragraph{Fonction d’offre (supply)}
+\[
+s_i(x_i(k)) = \max(c_i - w_i x_i(k) ,\; 0),
+\]
+où $c_i$ est une constante de capacité et $w_i$ la pente de saturation.
+
+\subsection{Définition des flux}
+
+\paragraph{Flux cellule $\to$ cellule}
+\[
+f_{ij}(k) = \min\left(d_i(x_i(k)),\; s_j(x_j(k))\right), \quad i,j \in \mathcal{X}.
+\]
+
+\paragraph{Flux cuve $\to$ cellule}
+\[
+f_{Tj}(k) = \min\left(u_T(k) \, x_T(k),\; s_j(x_j(k))\right), 
+\quad T \in \mathcal{T},\ j \in \mathcal{X}.
+\]
+
+\paragraph{Sortie hors réseau}
+Si une cellule $i$ n’a pas de successeur :
+\[
+\mu_i(k) = d_i(x_i(k)).
+\]
+
+\paragraph{Interdiction de retour vers les cuves}
+\[
+f_{jT}(k) = 0, \quad \forall j \in \mathcal{X},\ \forall T \in \mathcal{T}.
+\]
+
+\subsection{Dynamiques discrètes du système}
+
+\paragraph{Évolution des cuves}
+\[
+x_T^{k+1} = x_T^{k} 
+- h \sum_{j:\,T \to j} f_{Tj}(k).
+\]
+
+\paragraph{Évolution des cellules}
+\[
+x_i^{k+1}
+= x_i^{k}
++ h \left(
+\sum_{j:\,j \to i} f_{ji}(k)
+- \sum_{m:\,i \to m} f_{im}(k)
+- \mu_i(k)
+\right),
+\quad i \in \mathcal{X}.
+\]
+
+\subsection{Contraintes physiques}
+
+\[
+\begin{cases}
+x_i(k) \ge 0, \quad x_T(k) \ge 0, \\
+f_{ij}(k) \ge 0, \\
+0 \le u_T(k) \le x_T(k).
+\end{cases}
+\]
+
+\subsection{Relaxation convexe}
+
+Afin de rendre le problème convexe, les flux $f_{ij}(k)$ sont considérés comme variables indépendantes et les fonctions $\min(\cdot)$ sont remplacées par des contraintes d'inégalité :
+
+\[
+0 \le \bar{f}_{ij}(k) \le d_i(x_i(k)), \quad
+\sum_{j:\,j\to i} \bar{f}_{ji}(k) \le s_i(x_i(k)).
+\]
+
+\subsection{Problème de contrôle optimal sur horizon fini}
+
+On considère le critère quadratique :
+\[
+J = \sum_{k=0}^{K} \left( \sum_{i \in \mathcal{X}} x_i(k) + \sum_{T \in \mathcal{T}} x_T(k) \right)
+\]
+
+
+sous contraintes :
+\begin{itemize}
+    \item contraintes physiques sur la commande : 
+    $\begin{cases}
+        0 \le u_T(k) \le x_T(k)$ for $T \in \mathcal{T}, k \in 
+    \begin{bmatrix}
+        0, K
+    \end{bmatrix} \\
+    \gamma_i \in 
+    \begin{bmatrix}
+        0, 1
+    \end{bmatrix}
+    \end{cases}$
+    
+    \item contraintes de flux :
+\[
+\sum_{m:\,i \to m}  \bar{f}_{im}(k) \le d_i(x_i(k)) ,
+\]
+\[
+\sum_{j:\,j \to i} \bar{f}_{ji}(k) \le s_i(x_i(k)),
+\]
+\[
+\sum_{j:\,T \to j} f_{Tj}(k) \le u_T(k) x_T(k)
+\]
+    \item dynamiques du système : 
+\[
+x_i^{k+1}
+= x_i^{k}
++ h \left(
+\sum_{j:\,j \to i} \bar{f}_{ji}(k)
+- \sum_{m:\,i \to m} \bar{f}_{im}(k)
+- \mu_i(k)
+\right),
+\quad i \in \mathcal{X}.
+\]
+    \item pas de retour vers les cuves :
+\[
+f_{jT}(k) = 0,
+\]
+    \item conditions initiales :
+\[
+x^0 \text{ donné.}
+\]
+\end{itemize}
+
+
+
+
+
+\end{document}
