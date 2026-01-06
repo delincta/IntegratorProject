@@ -121,9 +121,10 @@ class Simulation:
 
     
     # Computes the outflow of a tank to obtain same result than mpc algo
-    def new_f_tank_mpc(self,i,s,k,Alpha):
-        u =min(self.T[i].uref,self.T[i].x[-1])
-        return min(Alpha[self.T_index[i], k]*u, self.X[s].s_fcn())
+    def new_f_tank_mpc(self,i,s,k,u):
+        # u =min(self.T[i].uref,self.T[i].x[-1])
+        # return min(Alpha[self.T_index[i], k]*u, self.X[s].s_fcn())
+        return (u[self.T_index[i], k])
 
     # Decides the value of uref to empty the tanks one after another
     def command_manager(self,tanks_list,uref):
@@ -218,13 +219,13 @@ class Simulation:
                 else:
                     self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i,k) for j in l) - self.f_end(i))) # ordre important
     
-    def simu_mpc(self, h, N, u, Gamma, Alpha):
+    def simu_mpc(self, h, N, u, Gamma):
         tanks_list = list(self.T.keys())
         for k in range (N):
             self.command_manager_mpc(tanks_list, u, k-1)
             for t in self.T:
                 d = list(self.graph.successors(self.sommets[t]))
-                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank_mpc(t,s.name,k,Alpha)) for s in d)) 
+                self.T[t].x.append(self.T[t].x[-1] - sum(h*(self.new_f_tank_mpc(t,s.name,k,u)) for s in d)) 
             for i in self.X:
                 l = list(self.graph.predecessors(self.sommets[i]))
                 # print("Voisins de " + str(i.name) + ": ", l)
@@ -233,7 +234,7 @@ class Simulation:
                     somme = 0
                     for j in l:
                         if j.name.startswith("T"):
-                            somme += self.new_f_tank_mpc(j.name,i,k,Alpha)
+                            somme += self.new_f_tank_mpc(j.name,i,k,u)
                         else:
                             somme += self.f_mpc(j.name,i,k,Gamma)
 
@@ -263,10 +264,10 @@ class Simulation:
         X = cp.Variable((nt+nc, nh+1))
         
         Gamma = np.zeros((nc, M))
-        Alpha = np.zeros((nt, M))
+        # Alpha = np.zeros((nt, M))
 
         # Complete vector U of commands
-        U = cp.Variable((nt, nh))
+        # U = cp.Variable((nt, nh))
 
         ######### Cost function #########
         # Now we can try to penalize the number of vehicles present in the whole network
@@ -288,7 +289,7 @@ class Simulation:
             for k in range(nh):
                 constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
                 # constr += [Sf[:, k] >= 0]
-                constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
+                # constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
                 constr += [Ft[:, k] <= cp.vstack([Sf[0, k], Sf[3, k]])]
                 for i in range(nc):
                     # constr += [Z[i, k] <= x_max * Gamma[i, k],
@@ -302,7 +303,8 @@ class Simulation:
             constr += [Df <= Fmax]
             constr += [Ft >= 0]
             constr += [Fc >= 0]
-            constr += [Ft <= U]
+            constr+=[X>=0]
+            # constr += [Ft <= U]
             # constr += [Gamma >= 0, Gamma <= 1]
             prob = cp.Problem(obj, constr)
 
@@ -310,33 +312,34 @@ class Simulation:
 
             # print("U.value =", U.value)
 
-            u = U.value[:,0:M]
+            # u = U.value[:,0:M]
+            u = Ft.value[:,0:M]
             
             U_hist[:, k_simu:k_simu+M] = u
             X_hist[:, k_simu+1:k_simu+M+1] = X.value[:,0:M]
 
             # We set X0 to the last vector X given by the MPC algo
-            X0 = X.value[:,M-1].reshape(-1,1) 
+            # X0 = X.value[:,M-1].reshape(-1,1) 
 
             # We compute Gamma
             for i in range(nc):
                 for j in range(M):
                     Gamma[i,j] = float(Fc[i,j].value/Df[i,j].value)
             # We compute Alpha
-            for i in range(nt):
-                for j in range(M):
-                    Alpha[i,j] = float(Ft[i,j].value/U[i,j].value)
+            # for i in range(nt):
+            #     for j in range(M):
+            #         Alpha[i,j] = float(Ft[i,j].value/U[i,j].value)
             # We simulate the system
-            self.simu_mpc(h, M, u, Gamma, Alpha)
+            self.simu_mpc(h, M, u, Gamma)
 
             # We set X0 to the last states X computed by the simulator
-            # for i in self.T:
-            #     Xt0[self.T_index[i],0] = self.T[i].x[-1]
-            # for i in self.X:
-            #     Xc0[self.X_index[i],0] = self.X[i].x[-1]
-            # Xt0_1d = cp.Constant(Xt0)
-            # Xc0_1d = cp.Constant(Xc0)
-            # X0 = cp.vstack([Xt0_1d, Xc0_1d])
+            for i in self.T:
+                Xt0[self.T_index[i],0] = self.T[i].x[-1]
+            for i in self.X:
+                Xc0[self.X_index[i],0] = self.X[i].x[-1]
+            Xt0_1d = cp.Constant(Xt0)
+            Xc0_1d = cp.Constant(Xc0)
+            X0 = cp.vstack([Xt0_1d, Xc0_1d])
 
 
         ########## Update sequences of states and inputs ############
@@ -380,7 +383,9 @@ class Simulation:
         # Boucle sur chaque variable
         for i, var in enumerate(dict):
             axs[i].plot(t,dict[var].x)
-            axs[i].set_title(var)
+            axs[i].set_xlabel("Time (s)") 
+            axs[i].set_ylabel("Number of vehicules")
+            axs[i].set_title("State of " + var + " Simulator run on MPC solution")
 
         # Supprimer les subplots vides si n n'est pas multiple de cols
         for j in range(i+1, len(axs)):
@@ -404,7 +409,9 @@ class Simulation:
         # Boucle sur chaque variable
         for i in range(n_rows):
             axs[i].plot(t,table[i,:])
-            axs[i].set_title(label + str(i+1) + " MPC")
+            axs[i].set_xlabel("Time (s)") 
+            axs[i].set_ylabel("Number of vehicules")
+            axs[i].set_title("State of " + label + str(i+1) + " full MPC")
         
         # Supprimer les subplots vides si n n'est pas multiple de cols
         for j in range(i+1, len(axs)):
