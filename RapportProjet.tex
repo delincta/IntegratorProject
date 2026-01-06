@@ -86,14 +86,14 @@ f_{jT}(k) = 0, \quad \forall j \in \mathcal{X},\ \forall T \in \mathcal{T}.
 
 \paragraph{Évolution des cuves}
 \[
-x_T^{k+1} = x_T^{k} 
+x_T(k+1) = x_T(k) 
 - h \sum_{j:\,T \to j} f_{Tj}(k).
 \]
 
 \paragraph{Évolution des cellules}
 \[
-x_i^{k+1}
-= x_i^{k}
+x_i(k+1)
+= x_i(k)
 + h \left(
 \sum_{j:\,j \to i} f_{ji}(k)
 - \sum_{m:\,i \to m} f_{im}(k)
@@ -155,8 +155,8 @@ sous contraintes :
 \]
     \item dynamiques du système : 
 \[
-x_i^{k+1}
-= x_i^{k}
+x_i(k+1)
+= x_i(k)
 + h \left(
 \sum_{j:\,j \to i} \bar{f}_{ji}(k)
 - \sum_{m:\,i \to m} \bar{f}_{im}(k)
@@ -170,7 +170,7 @@ f_{jT}(k) = 0,
 \]
     \item conditions initiales :
 \[
-x^0 \text{ donné.}
+x(0) \text{ donné.}
 \]
 \end{itemize}
 
