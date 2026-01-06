@@ -144,7 +144,7 @@ class Simulation:
         n_rows, n_col = u.shape
         for i in range(n_rows):
             self.T[tanks_list[i]].uref = float(u[i,k])
-
+            
             # print("u[i,k] =", u[i,k], type(u[i,k]))
             # print("uref =", self.T[tanks_list[i]].uref, type(self.T[tanks_list[i]].uref))
 
