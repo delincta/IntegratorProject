@@ -7,9 +7,7 @@ from cvxpy import *
 
 ########## Data ##############
 # Number of iterations
-N = 200
-# MPC horizon
-nh = 30
+N = 8000
 # Nb of tanks
 nt = 2
 # Nb of cells
@@ -121,7 +119,7 @@ constr += [Ft <= U]
 prob = Problem(obj, constr)
 
 # solve the problem
-prob.solve(solver=GUROBI)
+prob.solve(solver=GUROBI, verbose=True)
 
 print(prob.solver_stats.solver_name)
 print("Problem Status: {}".format(prob.status))

@@ -7,7 +7,7 @@ from cvxpy import *
 
 ########## Data ##############
 # Number of iterations
-N = 2000
+N = 8000
 # MPC horizon
 nh = int(N/10)
 M = int(nh/2)
