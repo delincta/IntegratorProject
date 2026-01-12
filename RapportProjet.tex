@@ -1,99 +1,124 @@
-\documentclass{article}
-\usepackage{graphicx} % Required for inserting images
-\usepackage{amsmath}
+\documentclass[12pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath, amssymb}
+\usepackage{graphicx}
 \usepackage[a4paper,margin=1.5cm]{geometry}
 
-\title{ProjetIntegrateurMPC}
-\author{mathis.poteau28 }
-\date{December 2025}
+\title{Integration Project -- Model Predictive Control (MPC)\\[0.3cm]
+Modeling and Control of a Transport Network}
+\author{Clément Milcent, Kevin Armel Wassa, Mathis Poteau}
+\date{January 2025}
 
 \begin{document}
 
 \maketitle
 
+\newpage
+\tableofcontents
+\newpage
+
 \section{Introduction}
 
+This project focuses on the modeling and optimal control of a transport network represented as a directed graph.  
+The objective is to describe the evolution of the volumes stored in the different components of the network and to formulate a Model Predictive Control (MPC) problem in order to optimize the global behavior of the system over a finite time horizon.
 
+First, a mathematical model of the network dynamics is introduced, together with the associated physical constraints.  
+Then, a convex relaxation of the model is proposed in order to make the optimal control problem tractable.  
+Finally, a finite-horizon optimal control problem is formulated.
 
-\section{Model}
+\section{Network Model}
 
-On considère un réseau orienté $G=(V,E)$ composé de deux types de sommets :
+The transport network is represented by a directed graph $G = (V,E)$ composed of two types of nodes:
 \begin{itemize}
-    \item $\mathcal{T}$ : ensemble des \textbf{cuves} (réservoirs),
-    \item $\mathcal{X}$ : ensemble des \textbf{cellules de transport} (tunnel).
+    \item $\mathcal{T}$: set of \textbf{tanks} (reservoirs),
+    \item $\mathcal{X}$: set of \textbf{transport cells} (tunnels).
 \end{itemize}
-On a $V = \mathcal{T} \cup \mathcal{X}$ et $\mathcal{T} \cap \mathcal{X} = \emptyset$.
 
-Le temps est discrétisé avec un pas $h > 0$ :
+The set of vertices is given by $V = \mathcal{T} \cup \mathcal{X}$, with $\mathcal{T} \cap \mathcal{X} = \emptyset$.
+
+Time is discretized with a constant sampling period $h > 0$:
 \[
 t_k = k h, \quad k = 0,1,\dots,K.
 \]
 
-\subsection{Variables d'état et de commande}
+\subsection{State and control variables}
 
-Pour tout $k$ :
+For each discrete time step $k$, the following variables are defined:
 \begin{itemize}
-    \item $x_T(k)$ : volume d’eau dans la cuve $T \in \mathcal{T}$,
-    \item $x_i(k)$ : volume d’eau dans la cellule $i \in \mathcal{X}$,
-    \item $u_T(k) \in [0,1]$ : commande d’ouverture de la vanne de la cuve $T$,
-    \item $f_{ij}(k) \ge 0$ : flux entre les sommets $i \to j$,
-    \item $\mu_i(k)$ : débit de sortie hors réseau pour les cellules terminales.
+    \item $x_T(k)$: water volume stored in tank $T \in \mathcal{T}$,
+    \item $x_i(k)$: water volume stored in cell $i \in \mathcal{X}$,
+    \item $u_T(k) \in [0,1]$: valve opening control associated with tank $T$,
+    \item $f_{ij}(k) \ge 0$: flow from node $i$ to node $j$,
+    \item $\mu_i(k)$: outflow leaving the network from terminal cells.
 \end{itemize}
 
-\subsection{Fonctions de demande et d’offre}
+\subsection{Demand and supply functions}
 
-Pour chaque cellule $i \in \mathcal{X}$, on définit :
+For each transport cell $i \in \mathcal{X}$, demand and supply functions are introduced.
 
-\paragraph{Fonction de demande (d’après le code Python)}
+\paragraph{Demand function}
+
+The demand function is defined as:
 \[
-d_i(x_i(k)) =\gamma_i  \min\left(  \frac{v_i}{l_i} x_i(k) ,\; C_i \right),
+d_i(x_i(k)) = \gamma_i \min\left( \frac{v_i}{l_i} x_i(k),\; C_i \right),
 \]
-où $v_i$ est la vitesse, $l_i$ la longueur de la cellule, $C_i$ la capacité maximale et $\gamma_i \in \begin{bmatrix}
-    0, 1
-\end{bmatrix}$ une commande permettant de contrôler la vitesse des véhicules.
+where $v_i$ denotes the velocity, $l_i$ the length of the cell, $C_i$ the maximum capacity, and $\gamma_i \in [0,1]$ is a control parameter used to regulate the flow.
 
-\paragraph{Fonction d’offre (supply)}
+\paragraph{Supply function}
+
+The supply function is given by:
 \[
-s_i(x_i(k)) = \max(c_i - w_i x_i(k) ,\; 0),
+s_i(x_i(k)) = \max\left(c_i - w_i x_i(k),\; 0\right),
 \]
-où $c_i$ est une constante de capacité et $w_i$ la pente de saturation.
+where $c_i$ is a capacity constant and $w_i$ is a saturation coefficient.
 
-\subsection{Définition des flux}
+\subsection{Flow definitions}
 
-\paragraph{Flux cellule $\to$ cellule}
+\paragraph{Cell-to-cell flow}
+
+For two transport cells $i,j \in \mathcal{X}$, the flow is defined as:
 \[
-f_{ij}(k) = \min\left(d_i(x_i(k)),\; s_j(x_j(k))\right), \quad i,j \in \mathcal{X}.
-\]
-
-\paragraph{Flux cuve $\to$ cellule}
-\[
-f_{Tj}(k) = \min\left(u_T(k) \, x_T(k),\; s_j(x_j(k))\right), 
-\quad T \in \mathcal{T},\ j \in \mathcal{X}.
+f_{ij}(k) = \min\left(d_i(x_i(k)),\; s_j(x_j(k))\right).
 \]
 
-\paragraph{Sortie hors réseau}
-Si une cellule $i$ n’a pas de successeur :
+\paragraph{Tank-to-cell flow}
+
+For a tank $T \in \mathcal{T}$ and a cell $j \in \mathcal{X}$:
+\[
+f_{Tj}(k) = \min\left(u_T(k)\, x_T(k),\; s_j(x_j(k))\right).
+\]
+
+\paragraph{Outflow from the network}
+
+If a cell $i$ has no successor, the outflow leaving the network is:
 \[
 \mu_i(k) = d_i(x_i(k)).
 \]
 
-\paragraph{Interdiction de retour vers les cuves}
+\paragraph{No return to tanks}
+
+Flows from transport cells back to tanks are forbidden:
 \[
 f_{jT}(k) = 0, \quad \forall j \in \mathcal{X},\ \forall T \in \mathcal{T}.
 \]
 
-\subsection{Dynamiques discrètes du système}
+\subsection{Discrete-time system dynamics}
 
-\paragraph{Évolution des cuves}
+\paragraph{Tank dynamics}
+
+The evolution of the tank volumes is described by:
 \[
-x_T(k+1) = x_T(k) 
-- h \sum_{j:\,T \to j} f_{Tj}(k).
+x_T(k+1) = x_T(k) - h \sum_{j:\,T \to j} f_{Tj}(k).
 \]
 
-\paragraph{Évolution des cellules}
+\paragraph{Cell dynamics}
+
+The dynamics of the transport cells are given by:
 \[
-x_i(k+1)
-= x_i(k)
+x_i(k+1) = x_i(k)
 + h \left(
 \sum_{j:\,j \to i} f_{ji}(k)
 - \sum_{m:\,i \to m} f_{im}(k)
@@ -102,8 +127,9 @@ x_i(k+1)
 \quad i \in \mathcal{X}.
 \]
 
-\subsection{Contraintes physiques}
+\subsection{Physical constraints}
 
+The system is subject to the following constraints:
 \[
 \begin{cases}
 x_i(k) \ge 0, \quad x_T(k) \ge 0, \\
@@ -112,69 +138,77 @@ f_{ij}(k) \ge 0, \\
 \end{cases}
 \]
 
-\subsection{Relaxation convexe}
 
-Afin de rendre le problème convexe, les flux $f_{ij}(k)$ sont considérés comme variables indépendantes et les fonctions $\min(\cdot)$ sont remplacées par des contraintes d'inégalité :
+\section{Open-Loop Analysis of a Simple Network}
+\subsection{Network Description: One Tank and Three Cells}
+\subsection{Open-Loop Simulation Setup}
+\subsection{Open-Loop Results}
+\subsection{Discussion}
 
+\section{Open-Loop Extension to a Larger Network}
+\subsection{Network Description: Two Tanks and Six Cells}
+\subsection{Open-Loop Simulation Results}
+\subsection{Discussion}
+
+\section{Model Predictive Control Formulation}
+
+\subsection{Convex Relaxation of the Flow Model}
+To obtain a convex formulation, the flows are treated as independent decision variables and the $\min(\cdot)$ operators are replaced by inequality constraints:
 \[
-0 \le \bar{f}_{ij}(k) \le d_i(x_i(k)), \quad
-\sum_{j:\,j\to i} \bar{f}_{ji}(k) \le s_i(x_i(k)).
+0 \le \bar{f}_{ij}(k) \le d_i(x_i(k)),
+\]
+\[
+\sum_{j:\,j \to i} \bar{f}_{ji}(k) \le s_i(x_i(k)).
+\]
+\subsection{MPC Problem Statement : Finite-horizon optimal control problem}
+A prediction horizon of length $K$ is considered, together with the following cost function:
+\[
+J = \sum_{k=0}^{K} \left( \sum_{i \in \mathcal{X}} x_i(k) + \sum_{T \in \mathcal{T}} x_T(k) \right).
 \]
 
-\subsection{Problème de contrôle optimal sur horizon fini}
-
-On considère le critère quadratique :
-\[
-J = \sum_{k=0}^{K} \left( \sum_{i \in \mathcal{X}} x_i(k) + \sum_{T \in \mathcal{T}} x_T(k) \right)
-\]
-
-
-sous contraintes :
+The objective is to minimize $J$ subject to:
 \begin{itemize}
-    \item contraintes physiques sur la commande : 
-    $\begin{cases}
-        0 \le u_T(k) \le x_T(k)$ for $T \in \mathcal{T}, k \in 
-    \begin{bmatrix}
-        0, K
-    \end{bmatrix} \\
-    \gamma_i \in 
-    \begin{bmatrix}
-        0, 1
-    \end{bmatrix}
-    \end{cases}$
-    
-    \item contraintes de flux :
-\[
-\sum_{m:\,i \to m}  \bar{f}_{im}(k) \le d_i(x_i(k)) ,
-\]
-\[
-\sum_{j:\,j \to i} \bar{f}_{ji}(k) \le s_i(x_i(k)),
-\]
-\[
-\sum_{j:\,T \to j} f_{Tj}(k) \le u_T(k) x_T(k)
-\]
-    \item dynamiques du système : 
-\[
-x_i(k+1)
-= x_i(k)
-+ h \left(
-\sum_{j:\,j \to i} \bar{f}_{ji}(k)
-- \sum_{m:\,i \to m} \bar{f}_{im}(k)
-- \mu_i(k)
-\right),
-\quad i \in \mathcal{X}.
-\]
-    \item pas de retour vers les cuves :
-\[
-f_{jT}(k) = 0,
-\]
-    \item conditions initiales :
-\[
-x(0) \text{ donné.}
-\]
+    \item control constraints:
+    \[
+    0 \le u_T(k) \le x_T(k), \quad \gamma_i \in [0,1],
+    \]
+    \item flow constraints:
+    \[
+    \sum_{m:\,i \to m} \bar{f}_{im}(k) \le d_i(x_i(k)),
+    \]
+    \[
+    \sum_{j:\,j \to i} \bar{f}_{ji}(k) \le s_i(x_i(k)),
+    \]
+    \[
+    \sum_{j:\,T \to j} f_{Tj}(k) \le u_T(k)\, x_T(k),
+    \]
+    \item system dynamics,
+    \item no return flows to tanks,
+    \item given initial condition $x(0)$.
+\end{itemize}
+\subsection{Numerical Implementation of the MPC Controller}
+
+
+
+\section{Coupling the MPC Controller with the Simulator}
+\subsection{Simulator Description}
+\subsection{Closed-Loop Control Architecture}
+\subsection{Closed-Loop Simulation Results}
+
+\section{Results and Performance Analysis}
+\subsection{Comparison Between Open-Loop and Closed-Loop Behavior}
+\subsection{Impact of MPC on Congestion Reduction}
+\subsection{Discussion on Model-Simulator Mismatch}
+
+\section{Conclusion and Perspectives}
+\begin{itemize}
+    \item Summary of the main results
+    \item Limitations of the proposed approach
+    \item Perspectives and future work
 \end{itemize}
 
-
+\newpage
+\listoffigures
 
 
 
