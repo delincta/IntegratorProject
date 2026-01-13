@@ -88,6 +88,13 @@ For two transport cells $i,j \in \mathcal{X}$, the flow is defined as:
 f_{ij}(k) = \min\left(d_i(x_i(k)),\; s_j(x_j(k))\right).
 \]
 
+\paragraph{Many cells to a single cell flow}
+We have $ m \in \mathcal{X}$ cells that all lead to a single cell $j \in \mathcal{X}$. The flow is defined as : 
+\[
+    \forall i \in [1,m],\ f_{ij} = min\ (\beta d_i(x_i(k)),s_j(x_j(k)))
+\]
+
+
 \paragraph{Tank-to-cell flow}
 
 For a tank $T \in \mathcal{T}$ and a cell $j \in \mathcal{X}$:
@@ -141,6 +148,11 @@ f_{ij}(k) \ge 0, \\
 0 \le u_T(k) \le x_T(k).
 \end{cases}
 \]
+
+When we get $m \in \mathcal{X}$ cells to a single cell $j \in \mathcal{X}$, we add these constraints : 
+\[
+    \sum_{i=1}^{m}{f_{ij} \le s_j}
+\] 
 
 
 \section{Open-Loop Analysis of a Simple Network}
@@ -225,8 +237,53 @@ The objective is to minimize $J$ subject to:
 
 \section{Coupling the MPC Controller with the Simulator}
 \subsection{Simulator Description}
+
 \subsection{Closed-Loop Control Architecture}
+The control is done following these steps : 
+\begin{itemize}
+    \item Formulate the problem statement (cost function, constraints)
+    \item Solve the optimization problem
+    \item Apply the first half solutions of the optimization problem
+    \item Go again with the previous steps until we get the last iteration
+\end{itemize}
+
 \subsection{Closed-Loop Simulation Results}
+This part is fed with both the  MPC results and the simulator outputs based on the MPC solution.\\
+The MPC is run over a finite horizon of 200 for 2000 iterations.
+
+
+\begin{figure}[h]
+    \centering
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{Images/Mpc_tank_states_hor200_2000iter.png}
+        \caption{MPC tank states}
+        \label{fig:MPC_tank_states}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.49\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{Images/Simulator_tank_states_hor200_2000iter.png}
+        \caption{Simulator tank states}
+        \label{fig:simulator_tank_states}
+    \end{subfigure}
+    \caption{MPC and simulator tnak states}
+    \label{fig:MPC_simulator_tank_states}
+\end{figure}
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.7\linewidth]{Images/Mpc_cells_states_hor200_2000iter.png}
+    \caption{MPC cells states}
+    \label{fig:MPC_cells_states}
+\end{figure}
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.7\linewidth]{Images/Simulator_cells_states_hor200_2000iter.png}
+    \caption{Simulator cells states}
+    \label{fig:simulator_cells_states}
+\end{figure}
 
 \section{Results and Performance Analysis}
 \subsection{Comparison Between Open-Loop and Closed-Loop Behavior}
