@@ -236,6 +236,7 @@ The objective is to minimize $J$ subject to:
     \item given initial condition $x(0)$.
 \end{itemize}
 \subsection{Numerical Implementation of the MPC Controller}
+The MPC gave us acceptable results, which we interpret as follows : 
 
 
 
@@ -252,6 +253,9 @@ The control is done following these steps :
 \end{itemize}
 
 \subsection{Closed-Loop Simulation Results}
+
+\subsubsection{Junction with two single cells}
+
 This part is fed with both the  MPC results and the simulator outputs based on the MPC solution.\\
 The MPC is run over a finite horizon of 200 for 2000 iterations.
 
@@ -288,6 +292,10 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
     \caption{Simulator cells states}
     \label{fig:simulator_cells_states}
 \end{figure}
+
+We got in the simulator that we perfectly match the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5\ and\ x_6$. But we the others, it's approximately the same but we got good results indeed. 
+
+\subsubsection{Junction with many cells to a single one}
 
 \section{Results and Performance Analysis}
 \subsection{Comparison Between Open-Loop and Closed-Loop Behavior}
