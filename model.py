@@ -129,17 +129,17 @@ class Simulation:
     # Decides the value of uref to empty the tanks one after another
     def command_manager(self,tanks_list,uref):
         # all the tanks empty simultaneously and identically
-        for tank in tanks_list:
-            self.T[tank].uref = uref
-        # # the tanks empty one after the other and identically
-        # if len(tanks_list) != 0:
-        #     emptying_tank = tanks_list[-1]
-        #     if self.T[emptying_tank].x[-1] < 1:
-        #         self.T[emptying_tank].uref = 0
-        #         tanks_list.pop()
-        #     else:
-        #         self.T[emptying_tank].uref = uref
-        #         # emptying_tank = tanks_list[-1]
+        # for tank in tanks_list:
+        #     self.T[tank].uref = uref
+        # the tanks empty one after the other and identically
+        if len(tanks_list) != 0:
+            emptying_tank = tanks_list[-1]
+            if self.T[emptying_tank].x[-1] < 1:
+                self.T[emptying_tank].uref = 0
+                tanks_list.pop()
+            else:
+                self.T[emptying_tank].uref = uref
+                # emptying_tank = tanks_list[-1]
     
     # Gives the values of uref found by mpc algo
     def command_manager_mpc(self, tanks_list, u, k):

@@ -46,8 +46,8 @@ print(graph.nodes)
 print(graph.edges)
 
 ####################  To visualize the graph only ###################
-# nx.draw(graph, pos=positions, with_labels=True)
-# plt.show()
+nx.draw(graph, pos=positions, with_labels=True)
+plt.show()
 
 ####################  To simulate the system and plot results ###################
 simu.setting(v_properties)

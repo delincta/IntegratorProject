@@ -74,27 +74,18 @@ class Simulation:
             return (min(float("inf"),self.X[j].s_fcn()))
         else:
             if len(l) > 1:
-                beta = 1
-                return (beta*min(self.X[i].d_fcn(),self.X[j].s_fcn()))
+                beta = min(self.X[j].s_fcn()/(sum(self.X[k.name].d_fcn() for k in l)+0.01), 1) # to avoid division by zero
+                return (beta*self.X[i].d_fcn())
             else:
                 return (min(self.X[i].d_fcn(),self.X[j].s_fcn()))
             
             
     # Computes the flow fij to obtain same result than mpc algo
     def f_mpc(self,i,j,k,Gamma):
+        l = list(self.graph.predecessors(self.sommets[j]))
         if i.startswith("T"):
             return (min(float("inf"),self.X[j].s_fcn()))
         else:
-            if i == "X2" and j == "X3" and k != self.k_old:
-                self.k_old += 1
-                self.value_s_fcn.append(self.X[j].s_fcn())
-                # print(self.k_old)
-                if self.X[i].d_fcn() < self.X[j].s_fcn():
-                    self.verif_f.append(-1)
-                    # print("min = d_fcn")
-                else:
-                    self.verif_f.append(1)
-                    # print("min = s_fcn")
             return (min(Gamma[self.X_index[i], k]*self.X[i].d_fcn(),self.X[j].s_fcn()))
 
     # Defines the flow of the last cell => equal to demand function
@@ -164,7 +155,7 @@ class Simulation:
     def simu(self, h, N):
         tanks_list = list(self.T.keys())
         for k in range (1,N):
-            self.command_manager(tanks_list,10) # Commande max fonctionnement sans bouchons: uref = 0.3
+            self.command_manager(tanks_list,0.3) # Commande max fonctionnement sans bouchons: uref = 0.3
             for t in self.T:
                 # calculer u
                 d = list(self.graph.successors(self.sommets[t]))
@@ -218,7 +209,7 @@ class Simulation:
         Df = cp.Variable((nc, nh))
         # Initial nb of vehicles in the tanks and in the cells
         Xt0 = np.array([100, 100], dtype=float).reshape(-1,1)
-        Xc0 = np.array([0, 0, 0, 0, 0, 0], dtype=float).reshape(-1,1)
+        Xc0 = np.array([0, 0, 0, 0, 0, 0, 0], dtype=float).reshape(-1,1)
         # Constants converted in 1D
         Xt0_1d = cp.Constant(Xt0)   # shape (2,)
         Xc0_1d = cp.Constant(Xc0)  # shape (6,)
@@ -230,10 +221,6 @@ class Simulation:
         X = cp.Variable((nt+nc, nh+1))
         
         Gamma = np.zeros((nc, M))
-        # Alpha = np.zeros((nt, M))
-
-        # Complete vector U of commands
-        # U = cp.Variable((nt, nh))
 
         ######### Cost function #########
         # Now we can try to penalize the number of vehicles present in the whole network
@@ -253,7 +240,7 @@ class Simulation:
             # Dynamics
             constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:nh] + h*(Mt@Ft + Mc@Fc)]
             for k in range(nh):
-                constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
+                constr += [Sf[:, k] <= (Cap - W @ X[2:(nc+nh), k])]
                 # constr += [Sf[:, k] >= 0]
                 # constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
                 constr += [Ft[:, k] <= cp.vstack([Sf[0, k], Sf[3, k]])]
@@ -262,28 +249,31 @@ class Simulation:
                     #         Z[i, k] <= X[2+i, k]] # Gamma * X
                     # constr += [Df[i,k] <= Z[i, k] * V[i]/L[i]]
                     constr += [Df[i,k] <= V[i]/L[i]*X[2+i, k]]
-                constr += [Fc[5, k] == Df[5, k]]
-                constr += [Fc[0:5, k] <= Sf[1:6, k]]
-                constr += [Fc[0:5, k] <= Df[0:5, k]]
+                constr += [Fc[nc-1, k] == Df[nc-1, k]]
+                constr += [Fc[0:2, k] <= Sf[1:3, k]]
+                constr += [Fc[3:5, k] <= Sf[4:6, k]]
+                constr += [Fc[2, k] + Fc[5, k] <= Sf[6, k]]
+                constr += [Fc[0:nc-1, k] <= Df[0:nc-1, k]]
 
             constr += [Df <= Fmax]
             constr += [Ft >= 0]
             constr += [Fc >= 0]
-            constr+=[X>=0]
+            constr += [X >= 0]
             # constr += [Ft <= U]
             # constr += [Gamma >= 0, Gamma <= 1]
             prob = cp.Problem(obj, constr)
 
             prob.solve(warm_start=True)
 
-            # print("U.value =", U.value)
+            # print("status =", prob.status)
+            # print("Ft.value is None ?", Ft.value is None)
 
-            # u = U.value[:,0:M]
             u = Ft.value[:,0:M]
+            # print("value of u =", u)
             
             U_hist[:, k_simu:k_simu+M] = u
             X_hist[:, k_simu+1:k_simu+M+1] = X.value[:,0:M]
-
+            # print(X.value[:,M-1])
             # We set X0 to the last vector X given by the MPC algo
             # X0 = X.value[:,M-1].reshape(-1,1) 
 
@@ -291,6 +281,7 @@ class Simulation:
             for i in range(nc):
                 for j in range(M):
                     Gamma[i,j] = float(Fc[i,j].value/Df[i,j].value)
+
             # We compute Alpha
             # for i in range(nt):
             #     for j in range(M):
@@ -306,6 +297,7 @@ class Simulation:
             Xt0_1d = cp.Constant(Xt0)
             Xc0_1d = cp.Constant(Xc0)
             X0 = cp.vstack([Xt0_1d, Xc0_1d])
+            # print(X0.value)
 
 
         ########## Update sequences of states and inputs ############

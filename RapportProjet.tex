@@ -9,6 +9,7 @@
 \usepackage{lmodern}
 \usepackage{amsmath, amssymb}
 \usepackage{graphicx}
+\usepackage{subcaption}
 \usepackage[a4paper,margin=1.5cm]{geometry}
 
 \title{Integration Project -- Model Predictive Control (MPC)\\[0.3cm]
@@ -256,14 +257,14 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
     \centering
     \begin{subfigure}{0.49\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{Images/Mpc_tank_states_hor200_2000iter.png}
+        \includegraphics[width=\linewidth]{Mpc_tank_states_hor200_2000iter.png}
         \caption{MPC tank states}
         \label{fig:MPC_tank_states}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{Images/Simulator_tank_states_hor200_2000iter.png}
+        \includegraphics[width=\linewidth]{Simulator_tank_states_hor200_2000iter.png}
         \caption{Simulator tank states}
         \label{fig:simulator_tank_states}
     \end{subfigure}
@@ -273,14 +274,14 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\linewidth]{Images/Mpc_cells_states_hor200_2000iter.png}
+    \includegraphics[width=0.7\linewidth]{Mpc_cells_states_hor200_2000iter.png}
     \caption{MPC cells states}
     \label{fig:MPC_cells_states}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.7\linewidth]{Images/Simulator_cells_states_hor200_2000iter.png}
+    \includegraphics[width=0.7\linewidth]{Simulator_cells_states_hor200_2000iter.png}
     \caption{Simulator cells states}
     \label{fig:simulator_cells_states}
 \end{figure}
