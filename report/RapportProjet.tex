@@ -163,7 +163,7 @@ When we get $m \in \mathcal{X}$ cells to a single cell $j \in \mathcal{X}$, we a
 \subsection{Network Description: Line Graph --- Two Tanks and Six Cells}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{graph_2Tanks_6cells.png}
+    \includegraphics[width=0.7\textwidth]{figures/graph_2Tanks_6cells.png}
     \caption{Network with two Tanks and six Cells}
     \label{fig:simpleNetworkFig}
 \end{figure}
@@ -175,8 +175,8 @@ First we modeled a simple line graph network with 6 cells and two tanks plugged 
 To empty the tanks, we will try two naive open-loop strategies. First we will try to empty both tanks at the same time and then we will totally empty one tank and then proceed to empty the other one (figure~\ref{fig:simpleNetwork_tankEmptying}). 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{tank_states_simulateur_OL.png}
-    \includegraphics[width=0.7\textwidth]{tank_states_simulateur_OL_command_differe.png}
+    \includegraphics[width=0.7\textwidth]{figures/tank_states_simulateur_OL.png}
+    \includegraphics[width=0.7\textwidth]{figures/tank_states_simulateur_OL_command_differe.png}
     \caption{Different ways to empty the tanks : both emptying at the same time or totally empty one and then the other one}
     \label{fig:simpleNetwork_tankEmptying}
 \end{figure}
@@ -184,14 +184,14 @@ When the two tanks are being emptied at the same time (figure~\ref{fig:simpleNet
 When emptying the tanks one after the other (figure~\ref{fig:simpleNetwork_resultTankOneThenAnother}) (first tank 2, then tank 1), we notice that we never exceed twenty vehicles, regardless of the cell. Even if it takes a little longer in this configuration, we notice that there is less stress on the cells.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{cell_states_simulateur_OL.png}
+    \includegraphics[width=\textwidth]{figures/cell_states_simulateur_OL.png}
     \caption{Results when both tanks are emptied at the same time}
     \label{fig:simpleNetwork_resultBothTanksEmpt}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{cell_states_simulateur_OL_command_differe.png}
+    \includegraphics[width=\textwidth]{figures/cell_states_simulateur_OL_command_differe.png}
     \caption{results when the tanks are emptied one after the other}
     \label{fig:simpleNetwork_resultTankOneThenAnother}
 \end{figure}
@@ -264,14 +264,14 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
     \centering
     \begin{subfigure}{0.49\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{Mpc_tank_states_hor200_2000iter.png}
+        \includegraphics[width=\linewidth]{figures/Mpc_tank_states_hor200_2000iter.png}
         \caption{MPC tank states}
         \label{fig:MPC_tank_states}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{Simulator_tank_states_hor200_2000iter.png}
+        \includegraphics[width=\linewidth]{figures/Simulator_tank_states_hor200_2000iter.png}
         \caption{Simulator tank states}
         \label{fig:simulator_tank_states}
     \end{subfigure}
@@ -281,14 +281,14 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\linewidth]{Mpc_cells_states_hor200_2000iter.png}
+    \includegraphics[width=0.7\linewidth]{figures/Mpc_cells_states_hor200_2000iter.png}
     \caption{MPC cells states}
     \label{fig:MPC_cells_states}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.7\linewidth]{Simulator_cells_states_hor200_2000iter.png}
+    \includegraphics[width=0.7\linewidth]{figures/Simulator_cells_states_hor200_2000iter.png}
     \caption{Simulator cells states}
     \label{fig:simulator_cells_states}
 \end{figure}
