@@ -34,61 +34,69 @@ print(graph.nodes)
 print(graph.edges)
 
 ####################  To visualize the graph only ###################
-# nx.draw(graph, pos=positions, with_labels=True)
+# nx.draw(
+#     graph,
+#     pos=positions,
+#     with_labels=True,
+#     node_color="white",     # remplissage blanc
+#     edgecolors="black",     # bordure noire
+#     node_size=800,          # taille des sommets
+#     linewidths=1.5          # épaisseur de la bordure
+# )
 # plt.show()
 
 ####################  To simulate the system and plot results ###################
-# simu.setting(v_properties)
-# simu.simu(0.1,10000*2)
-# simu.results_2(0.1,10000*2)
+simu.setting(v_properties)
+simu.simu(0.1,10000*2)
+simu.results_2(0.1,10000*2)
 
 
 ######################  Verification of simulator  ##########################
 
 
 
-# Number of iterations
-N = 2000
-# MPC horizon
-nh = int(N/10)
-M = int(nh/2)
-# Nb of tanks
-nt = 2
-# Nb of cells
-nc = 7
-# Step time
-h = 0.1
-# Max speeds of the cells
-V = 1/3.6*np.array([70, 70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
-# Slopes of supply function
-W = 20/3.6*np.eye(nc)
-# Lengths of roads
-L = np.array([500, 500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
-# Capacities of the cells
-Cap = 1/4.7*L *20/3.6 *1 # 1 voie mobilisée
-# Max flow
-Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
+# # Number of iterations
+# N = 2000
+# # MPC horizon
+# nh = int(N/10)
+# M = int(nh/2)
+# # Nb of tanks
+# nt = 2
+# # Nb of cells
+# nc = 7
+# # Step time
+# h = 0.1
+# # Max speeds of the cells
+# V = 1/3.6*np.array([70, 70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
+# # Slopes of supply function
+# W = 20/3.6*np.eye(nc)
+# # Lengths of roads
+# L = np.array([500, 500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
+# # Capacities of the cells
+# Cap = 1/4.7*L *20/3.6 *1 # 1 voie mobilisée
+# # Max flow
+# Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
 
-Mt = np.array([[-1, 0],
-               [0, -1], 
-               [1, 0],
-               [0, 0],
-               [0, 0],
-               [0, 1],
-               [0, 0],
-               [0, 0],
-               [0, 0]], dtype=float)
+# Mt = np.array([[-1, 0],
+#                [0, -1], 
+#                [1, 0],
+#                [0, 0],
+#                [0, 0],
+#                [0, 1],
+#                [0, 0],
+#                [0, 0],
+#                [0, 0]], dtype=float)
 
-Mc = np.array([[0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0], 
-               [-1, 0, 0, 0, 0, 0, 0],
-               [1, -1, 0, 0, 0, 0, 0],
-               [0, 1, -1, 0, 0, 0, 0],
-               [0, 0, 0, -1, 0, 0, 0],
-               [0, 0, 0, 1, -1, 0, 0],
-               [0, 0, 0, 0, 1, -1, 0],
-               [0, 0, 1, 0, 0, 1, -1]], dtype=float)
+# Mc = np.array([[0, 0, 0, 0, 0, 0, 0],
+#                [0, 0, 0, 0, 0, 0, 0], 
+#                [-1, 0, 0, 0, 0, 0, 0],
+#                [1, -1, 0, 0, 0, 0, 0],
+#                [0, 1, -1, 0, 0, 0, 0],
+#                [0, 0, 0, -1, 0, 0, 0],
+#                [0, 0, 0, 1, -1, 0, 0],
+#                [0, 0, 0, 0, 1, -1, 0],
+#                [0, 0, 1, 0, 0, 1, -1]], dtype=float)
 
-simu.setting(v_properties)
-X_hist, U_hist = simu.verif_simu(h, M, N, nh, nt, nc, V, W, L, Cap, Fmax, Mt, Mc)
-simu.results_2_mpc(h, N, U_hist, X_hist)
+# simu.setting(v_properties)
+# X_hist, U_hist = simu.verif_simu(h, M, N, nh, nt, nc, V, W, L, Cap, Fmax, Mt, Mc)
+# simu.results_2_mpc(h, N, U_hist, X_hist)

@@ -307,25 +307,10 @@ class Simulation:
         return X_hist, U_hist
 
 
-    def results(self, h, N):
-        t = []
-        for k in range(N):
-            t.append(k*h)
-        for i in self.T:
-            plt.figure
-            plt.plot(t,self.T[i].x)
-            plt.title(i)
-            plt.show()
-        for i in self.X:
-            plt.figure
-            plt.plot(t,self.X[i].x)
-            plt.title(i)
-            plt.show()
-
     # Displays with subplots
     # dict: dictionnary containing the data (type Cell)
     # t: time vector
-    def create_subplot(self, dict, t):
+    def create_subplot(self, dict, t, hauteur):
         # Nombre de variables
         n = len(dict)
 
@@ -333,17 +318,39 @@ class Simulation:
         cols = 2
         rows = (n + cols - 1) // cols  # arrondi vers le haut
 
-        fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
+        fig, axs = plt.subplots(rows, cols, figsize=(10, hauteur))
 
         # axs est une matrice → on la transforme en liste pour itérer facilement
         axs = axs.flatten()
 
         # Boucle sur chaque variable
         for i, var in enumerate(dict):
-            axs[i].plot(t,dict[var].x)
-            axs[i].set_xlabel("Time (s)") 
-            axs[i].set_ylabel("Number of vehicules")
-            axs[i].set_title("State of " + var + " Simulator")
+            axs[i].plot(t, dict[var].x)
+            axs[i].set_title("State of " + var, fontsize=14)
+            # Taille des graduations
+            axs[i].tick_params(axis='both', labelsize=12)
+
+        axs[i].set_xlabel("Time (s)", fontsize=14)
+        axs[i-1].set_xlabel("Time (s)", fontsize=14)
+
+        # To write a global title for y axis
+        for col in range(cols):
+            # axes de la colonne
+            col_axes = [axs[row * cols + col] for row in range(rows)]
+
+            if col == 0:
+                # à gauche de la première colonne
+                x_pos = col_axes[0].get_position().x0 - 0.11
+
+            fig.text(
+                x_pos,
+                0.5,
+                "Number of vehicles",
+                ha="center",
+                va="center",
+                rotation="vertical",
+                fontsize=14
+            )
 
         # Supprimer les subplots vides si n n'est pas multiple de cols
         for j in range(i+1, len(axs)):
@@ -352,14 +359,15 @@ class Simulation:
         plt.tight_layout()
         plt.show()
 
-    def create_subplot_mpc(self, table, t, label):
+
+    def create_subplot_mpc(self, table, t, label, hauteur):
         n_rows, n_col = table.shape
 
         # Déterminer la grille (ici 2 colonnes)
         cols = 2
         rows = (n_rows + cols - 1) // cols  # arrondi vers le haut
 
-        fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
+        fig, axs = plt.subplots(rows, cols, figsize=(10, hauteur))
 
         # axs est une matrice → on la transforme en liste pour itérer facilement
         axs = axs.flatten()
@@ -367,10 +375,33 @@ class Simulation:
         # Boucle sur chaque variable
         for i in range(n_rows):
             axs[i].plot(t,table[i,:])
-            axs[i].set_xlabel("Time (s)") 
-            axs[i].set_ylabel("Number of vehicules")
-            axs[i].set_title("State of " + label + str(i+1) + " full MPC")
-        
+            axs[i].set_title("State of " + label + str(i+1) + " full MPC", fontsize=14)
+
+            # Taille des graduations
+            axs[i].tick_params(axis='both', labelsize=12)
+
+        axs[i].set_xlabel("Time (s)", fontsize=14)
+        axs[i-1].set_xlabel("Time (s)", fontsize=14)
+
+        # To write a global title for y axis
+        for col in range(cols):
+            # axes de la colonne
+            col_axes = [axs[row * cols + col] for row in range(rows)]
+
+            if col == 0:
+                # à gauche de la première colonne
+                x_pos = col_axes[0].get_position().x0 - 0.11
+
+            fig.text(
+                x_pos,
+                0.5,
+                "Number of vehicles",
+                ha="center",
+                va="center",
+                rotation="vertical",
+                fontsize=14
+            )
+
         # Supprimer les subplots vides si n n'est pas multiple de cols
         for j in range(i+1, len(axs)):
             fig.delaxes(axs[j])
@@ -390,8 +421,8 @@ class Simulation:
         # plt.title("y(t) = -1 if f_23(x)=d_fcn // y(t) = +1 if f_23(x)=s_fcn")
         # plt.show()
 
-        self.create_subplot(self.T, t_inputs)
-        self.create_subplot(self.X, t_states)
+        self.create_subplot(self.T, t_inputs, 4)
+        self.create_subplot(self.X, t_states, 6)
 
 
     # To display with subplots
@@ -405,11 +436,11 @@ class Simulation:
         # plt.title("y(t) = -1 if f_23(x)=d_fcn // y(t) = +1 if f_23(x)=s_fcn")
         # plt.show()
 
-        self.create_subplot(self.T, t_states)
-        self.create_subplot(self.X, t_states)
+        self.create_subplot(self.T, t_states, 4)
+        self.create_subplot(self.X, t_states, 6)
 
-        self.create_subplot_mpc(tab_x[0:2,:], t_states, "T")
-        self.create_subplot_mpc(tab_x[2:,:], t_states, "X")
+        self.create_subplot_mpc(tab_x[0:2,:], t_states, "T", 4)
+        self.create_subplot_mpc(tab_x[2:,:], t_states, "X", 6)
         # self.create_subplot_mpc(tab_u, t_inputs)
         
 

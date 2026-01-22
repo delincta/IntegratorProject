@@ -46,15 +46,21 @@ print(graph.nodes)
 print(graph.edges)
 
 ####################  To visualize the graph only ###################
-nx.draw(graph, pos=positions, with_labels=True)
-plt.show()
+# nx.draw(
+#     graph,
+#     pos=positions,
+#     with_labels=True,
+#     node_color="white",     # remplissage blanc
+#     edgecolors="black",     # bordure noire
+#     node_size=800,          # taille des sommets
+#     linewidths=1.5          # épaisseur de la bordure
+# )
+# plt.show()
 
 ####################  To simulate the system and plot results ###################
 simu.setting(v_properties)
 simu.simu(0.1,10000)
 simu.results_2(0.1,10000)
-# simu.simu(0.01,100000*2)
-# simu.results_2(0.01,100000*2)
 
 
 ######################  Verification of simulator  ##########################

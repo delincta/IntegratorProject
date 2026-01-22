@@ -26,6 +26,8 @@
 \contentsline {subsection}{\numberline {5.1}Simulator Description}{8}{subsection.5.1}%
 \contentsline {subsection}{\numberline {5.2}Closed-Loop Control Architecture}{8}{subsection.5.2}%
 \contentsline {subsection}{\numberline {5.3}Closed-Loop Simulation Results}{9}{subsection.5.3}%
+\contentsline {subsubsection}{\numberline {5.3.1}Junction with two single cells}{9}{subsubsection.5.3.1}%
+\contentsline {subsubsection}{\numberline {5.3.2}Junction with many cells to a single one}{9}{subsubsection.5.3.2}%
 \contentsline {section}{\numberline {6}Results and Performance Analysis}{9}{section.6}%
 \contentsline {subsection}{\numberline {6.1}Comparison Between Open-Loop and Closed-Loop Behavior}{9}{subsection.6.1}%
 \contentsline {subsection}{\numberline {6.2}Impact of MPC on Congestion Reduction}{10}{subsection.6.2}%
