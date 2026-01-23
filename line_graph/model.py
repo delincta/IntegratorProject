@@ -512,4 +512,10 @@ class Simulation:
             axs[i].legend()
                 
 
+    def add_data_list(self, fig, axs, t, data):
+        n_rows, n_col = data.shape
 
+        # Boucle sur chaque variable
+        for i in range(n_rows):
+            axs[i].plot(t, data[i,:], '--', label="MPC")
+            axs[i].legend()
