@@ -27,7 +27,7 @@ Modeling and Control of a Transport Network}
 
 \section{Introduction}
 
-This project focuses on the modeling and optimal control of a transport network represented as a directed graph.  
+In zone-based evacuation planning, the region to evacuate is divided into zones, and each zone must be assigned a path to safety and departure times along the path. Zone-based evacuations are highly desirable in practice because they allow emergency services to communicate evacuation orders and to control the evacuation more precisely. Zone-based evacuations may also be combined with contraflows (to maximize the network capacities) and may impose additional constraints on the evacuation path (e.g., path convergence) and the departure times (e.g., non-preemption). This project focuses on the modeling and optimal control of a transport network represented as a directed graph.  
 The objective is to describe the evolution of the volumes stored in the different components of the network and to formulate a Model Predictive Control (MPC) problem in order to optimize the global behavior of the system over a finite time horizon.
 
 First, a mathematical model of the network dynamics is introduced, together with the associated physical constraints.  
@@ -35,34 +35,36 @@ Then, a convex relaxation of the model is proposed in order to make the optimal 
 Finally, a finite-horizon optimal control problem is formulated.
 
 \section{Network Model}
-
 The transport network is represented by a directed graph $G = (V,E)$ composed of two types of nodes:
 \begin{itemize}
-    \item $\mathcal{T}$: set of \textbf{tanks} (reservoirs),
-    \item $\mathcal{X}$: set of \textbf{transport cells} (tunnels).
+    \item $\mathcal{T}$: set of \textbf{tanks} ,
+    \item $\mathcal{X}$: set of \textbf{transport cells} .
 \end{itemize}
 
-The set of vertices is given by $V = \mathcal{T} \cup \mathcal{X}$, with $\mathcal{T} \cap \mathcal{X} = \emptyset$.
-
-Time is discretized with a constant sampling period $h > 0$:
+The set of vertices is given by $V = \mathcal{T} \cup \mathcal{X}$, with $\mathcal{T} \cap \mathcal{X} = \emptyset$. The evolution of the evacuation network is described in discrete time. Time is discretized with a constant sampling period $h > 0$:
 \[
 t_k = k h, \quad k = 0,1,\dots,K.
-\]
+\] 
+At each instant, the state of the system is characterized by the number of vehicles stored in each tank $x_T$ and in each cell $x_i$. Control decisions mainly act on the tanks through control variables $u_T$, which regulate the number of vehicles injected into the network. Interactions between the different elements are described by flows \(f_{ij}\), representing the number of vehicles moving from cell $i$ to cell $j$, while the final exits of the network are represented by the variables $\mu_i$ associated with terminal cells. This formulation allows for precise tracking of vehicle propagation throughout the network, accounts for congestion effects, and provides a basis for a model predictive control problem aimed at optimizing evacuation over a finite time horizon under physical and operational constraints.
+
+
 
 \subsection{State and control variables}
 
 For each discrete time step $k$, the following variables are defined:
 \begin{itemize}
-    \item $x_T(k)$: water volume stored in tank $T \in \mathcal{T}$,
-    \item $x_i(k)$: water volume stored in cell $i \in \mathcal{X}$,
-    \item $u_T(k) \in [0,1]$: valve opening control associated with tank $T$,
+    \item $x_T(k)$: number of cars stored in tank $T \in \mathcal{T}$,
+    \item $x_i(k)$: number of cars stored in cell $i \in \mathcal{X}$,
+    \item $u_T(k) \in [0,1]$: control associated with tank $T$,
     \item $f_{ij}(k) \ge 0$: flow from node $i$ to node $j$,
     \item $\mu_i(k)$: outflow leaving the network from terminal cells.
 \end{itemize}
 
 \subsection{Demand and supply functions}
 
-For each transport cell $i \in \mathcal{X}$, demand and supply functions are introduced.
+
+The dynamics of vehicle flow within each transport cell are described using demand and supply functions. The \textbf{demand function} represents the potential outflow from a cell based on the number of vehicles currently present, the cell’s length, and its velocity, while allowing modulation through a control  : we assume that we can control the speed of the vehicles. In contrast, the \textbf{supply function} models the capacity of a cell to accept incoming vehicles, which decreases as the cell becomes congested. Together, these functions account for congestion effects and flow limitations, ensuring that vehicle movements remain physically realistic and that control actions respect the network's capacity constraints. This formulation is essential for designing an effective model predictive control strategy, as it provides a clear link between the state of the network (vehicle densities) and the possible flows between cells.
+
 
 \paragraph{Demand function}
 
@@ -82,6 +84,10 @@ where $c_i$ is a capacity constant and $w_i$ is a saturation coefficient.
 
 \subsection{Flow definitions}
 
+The vehicle flows in the network are defined to capture physical limitations and capacity constraints. The \textbf{flow between two cells} is limited by the demand of the upstream cell and the supply of the downstream cell, ensuring realistic traffic propagation. When multiple cells converge into a single cell, the incoming flow is distributed proportionally to the demand of each upstream cell while respecting the capacity of the downstream cell. The \textbf{flow from a tank to a cell} is controlled by the tank’s control variable and is limited by the supply of the target cell. For terminal cells with no successors, the \textbf{outflow from the network} corresponds directly to the demand of the cell. Finally, flows from transport cells back to tanks are prohibited, reflecting the irreversibility of the evacuation. These definitions link the network state and control decisions to the actual flows between cells and tanks, while respecting congestion and capacity constraints.
+
+
+
 \paragraph{Cell-to-cell flow}
 
 For two transport cells $i,j \in \mathcal{X}$, the flow is defined as:
@@ -92,11 +98,11 @@ f_{ij}(k) = \min\left(d_i(x_i(k)),\; s_j(x_j(k))\right).
 \paragraph{Many cells to a single cell flow}
 We have $ m \in \mathcal{X}$ cells that all lead to a single cell $j \in \mathcal{X}$. The flow is defined as : 
 \[
-    \forall i \in [1,m],\ f_{ij} = min\ (\beta d_i(x_i(k)),s_j(x_j(k)))
+    \forall i \in [1,m],\ f_{ij} = \min\ (\beta d_i(x_i(k)),s_j(x_j(k)))
 \]
 
 \[
-    with\,\beta=min(\frac{s_j(x_j(k))}{\sum_{i=1}^{m}{d_i(x_i(k))}},1)
+    \text{with} \,\beta=\min(\frac{s_j(x_j(k))}{\sum_{i=1}^{m}{d_i(x_i(k))}},1)
 \]
 
 \paragraph{Tank-to-cell flow}
@@ -122,9 +128,12 @@ f_{jT}(k) = 0, \quad \forall j \in \mathcal{X},\ \forall T \in \mathcal{T}.
 
 \subsection{Discrete-time system dynamics}
 
+The discrete-time dynamics of the network describe the evolution of vehicle number of vehicles in tanks and transport cells. Tank number of vehicles decrease according to the outgoing flows to the cells, while cell number of vehicles increase with incoming flows and decrease with outgoing flows and network outflows. This formulation directly links the flows to the network states.
+
+
 \paragraph{Tank dynamics}
 
-The evolution of the tank volumes is described by:
+The evolution of the tank number of vehicles is described by:
 \[
 x_T(k+1) = x_T(k) - h \sum_{j:\,T \to j} f_{Tj}(k).
 \]
@@ -143,6 +152,7 @@ x_i(k+1) = x_i(k)
 \]
 
 \subsection{Physical constraints}
+The system is subject to the following physical constraints. Vehicle volumes in tanks and cells must be non-negative, and flows between cells cannot be negative, as it is impossible to have a negative number of vehicles moving through the network. The control variable $u_T$, representing the number of vehicles leaving a tank, cannot exceed the volume available in that tank, ensuring that no more vehicles are evacuated than are present. Additionally, when multiple cells converge into a single cell $j$, the total incoming flow cannot exceed the supply of the destination cell, which enforces the network's physical limits.
 
 The system is subject to the following constraints:
 \[
@@ -163,7 +173,7 @@ When we get $m \in \mathcal{X}$ cells to a single cell $j \in \mathcal{X}$, we a
 \subsection{Network Description: Line Graph --- Two Tanks and Six Cells}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/graph_2Tanks_6cells.png}
+    \includegraphics[width=0.7\textwidth]{figures/line_graph/graph_2Tanks_6cells.png}
     \caption{Network with two Tanks and six Cells}
     \label{fig:simpleNetworkFig}
 \end{figure}
@@ -175,8 +185,8 @@ First we modeled a simple line graph network with 6 cells and two tanks plugged 
 To empty the tanks, we will try two naive open-loop strategies. First we will try to empty both tanks at the same time and then we will totally empty one tank and then proceed to empty the other one (figure~\ref{fig:simpleNetwork_tankEmptying}). 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/tank_states_simulateur_OL.png}
-    \includegraphics[width=0.7\textwidth]{figures/tank_states_simulateur_OL_command_differe.png}
+    \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tank_states_simulateur_OL.png}
+    \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tank_states_simulateur_OL_command_differe.png}
     \caption{Different ways to empty the tanks : both emptying at the same time or totally empty one and then the other one}
     \label{fig:simpleNetwork_tankEmptying}
 \end{figure}
@@ -184,14 +194,14 @@ When the two tanks are being emptied at the same time (figure~\ref{fig:simpleNet
 When emptying the tanks one after the other (figure~\ref{fig:simpleNetwork_resultTankOneThenAnother}) (first tank 2, then tank 1), we notice that we never exceed twenty vehicles, regardless of the cell. Even if it takes a little longer in this configuration, we notice that there is less stress on the cells.
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{figures/cell_states_simulateur_OL.png}
+    \includegraphics[width=\textwidth]{figures/line_graph/Open_loop/cell_states_simulateur_OL.png}
     \caption{Results when both tanks are emptied at the same time}
     \label{fig:simpleNetwork_resultBothTanksEmpt}
 \end{figure}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{figures/cell_states_simulateur_OL_command_differe.png}
+    \includegraphics[width=\textwidth]{figures/line_graph/Open_loop/cell_states_simulateur_OL_command_differe.png}
     \caption{results when the tanks are emptied one after the other}
     \label{fig:simpleNetwork_resultTankOneThenAnother}
 \end{figure}
@@ -200,9 +210,11 @@ When emptying the tanks one after the other (figure~\ref{fig:simpleNetwork_resul
 
 
 \section{Model Predictive Control Formulation}
+The original flow model relies on $\min(\cdot)$ operators between demand and supply functions. It is these $\min(\cdot)$ operators that introduce nonlinearities and make the constraints non-convex. Such non-convexity prevents the use of efficient optimization methods within a model predictive control framework. 
+
 
 \subsection{Convex Relaxation of the Flow Model}
-To obtain a convex formulation, the flows are treated as independent decision variables and the $\min(\cdot)$ operators are replaced by inequality constraints:
+To ensure convexity, the $\min(\cdot)$ operators are replaced by inequality constraints, and the flows are treated as independent decision variables $\bar{f}_{ij}$. This relaxation yields a convex optimization problem while preserving the essential physical limitations of the network.
 \[
 0 \le \bar{f}_{ij}(k) \le d_i(x_i(k)),
 \]
@@ -264,14 +276,14 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
     \centering
     \begin{subfigure}{0.49\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/Mpc_tank_states_hor200_2000iter.png}
+        \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png}
         \caption{MPC tank states}
         \label{fig:MPC_tank_states}
     \end{subfigure}
     \hfill
     \begin{subfigure}{0.49\linewidth}
         \centering
-        \includegraphics[width=\linewidth]{figures/Simulator_tank_states_hor200_2000iter.png}
+        \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png}
         \caption{Simulator tank states}
         \label{fig:simulator_tank_states}
     \end{subfigure}
@@ -281,19 +293,19 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
 
 \begin{figure}[h]
     \centering
-    \includegraphics[width=0.7\linewidth]{figures/Mpc_cells_states_hor200_2000iter.png}
+    \includegraphics[width=0.7\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png}
     \caption{MPC cells states}
     \label{fig:MPC_cells_states}
 \end{figure}
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.7\linewidth]{figures/Simulator_cells_states_hor200_2000iter.png}
+    \includegraphics[width=0.7\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png}
     \caption{Simulator cells states}
     \label{fig:simulator_cells_states}
 \end{figure}
 
-We got in the simulator that we perfectly match the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5\ and\ x_6$. But we the others, it's approximately the same but we got good results indeed. 
+We got in the simulator that we perfectly match the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5$ and $x_6$. But we the others, it's approximately the same but we got good results indeed. 
 
 \subsubsection{Junction with many cells to a single one}
 
@@ -325,6 +337,35 @@ Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different
     \item Limitations of the proposed approach
     \item Perspectives and future work
 \end{itemize}
+
+
+\begin{thebibliography}{9}
+
+\bibitem{ref1}
+Mohd. Hafiz Hasan and Pascal Van Hentenryck,
+Large-scale zone-based evacuation planning—Part I: Models and algorithms,
+Special Issue on Celebrating 50 Years of Networks: Part 1,
+Volume77, Issue1, Pages 127-145.
+
+\bibitem{ref2}
+Christian Rosdahl, Gustav Nilsson and Giacomo Como,
+On Distributed Optimal Control of Traffic Flows in Transportation Networks,
+Department of Automatic Control, Lund University,
+Lagrange Department of Mathematical Sciences, Politecnico di Torino.
+
+\bibitem{ref3}
+Christian Rosdahl,
+MSc Thesis : Distributed Control of Dynamic Flows in Traffic Networks,
+Department of Automatic Control, Lund University.
+
+\bibitem{ref4}
+R.M Lewis and R.B Vinter,
+Relaxation of optimal control problems to equivalent convex programs,
+Journal of Mathematical Analysis and Applications,
+Volume 74, Issue 2, April 1980, Pages 475-493.
+
+
+\end{thebibliography}
 
 \newpage
 \listoffigures
