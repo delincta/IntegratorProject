@@ -7,9 +7,9 @@ from model import Cell, Sommet, Network, Simulation
 
 # Exemple 2
 vertices = {"T1":["X1"], "T2":["X4"], "X1":["X2"], "X2":["X3"], "X3":["X7"], "X4":["X5"], "X5":["X6"], "X6":["X7"], "X7":[]} # dictionnaire {nom_sommet: [voisins]}
-v_properties = {"T1":[100,0], "T2":[100,0], "X1":[500, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X2":[500, 70/3.6, 1000/3600, 20/3.6, 0, 0],\
-                 "X3":[500, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X4":[500, 70/3.6, 1000/3600, 20/3.6, 0, 0],\
-                   "X5":[500, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X6":[500, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X7":[500, 70/3.6, 1000/3600, 20/3.6, 0, 0]} # for the tanks the only parameter is x_0
+v_properties = {"T1":[100,0], "T2":[100,0], "X1":[200, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X2":[200, 70/3.6, 1000/3600, 20/3.6, 0, 0],\
+                 "X3":[200, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X4":[200, 70/3.6, 1000/3600, 20/3.6, 0, 0],\
+                   "X5":[200, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X6":[200, 70/3.6, 1000/3600, 20/3.6, 0, 0], "X7":[200, 70/3.6, 1000/3600, 20/3.6, 0, 0]} # for the tanks the only parameter is x_0
 
 
 net = Network(vertices)
@@ -46,9 +46,39 @@ print(graph.edges)
 # plt.show()
 
 ####################  To simulate the system and plot results ###################
+# simu.setting(v_properties)
+# simu.simu(0.1,10000*2)
+# simu.results_2(0.1,10000*2)
+
+#### To plot both strategies on the same graph
+N_simu = 10000
+h_simu = 0.1
+
+simu2 = Simulation(graph,sommets)
+
 simu.setting(v_properties)
-simu.simu(0.1,10000*2)
-simu.results_2(0.1,10000*2)
+simu.simu(h_simu,N_simu,False)
+
+simu2.setting(v_properties)
+simu2.simu(h_simu,N_simu,True)
+
+# on récupère les données de chaque simulation et on les affiche ensemble
+T1,X1 = simu.T,simu.X
+T2,X2 = simu2.T,simu2.X
+
+first_key = next(iter(T1))
+print(len(T1[first_key].x))
+
+t_inputs = np.arange(N_simu)*h_simu
+t_states = np.arange(N_simu)*h_simu
+
+fig_T,axs_T = simu.create_subplot(T1,t_inputs,4)
+simu.add_data(fig_T,axs_T,t_inputs,T2)
+plt.show()
+
+fig_X,axs_X = simu.create_subplot(X1,t_states,6)
+simu.add_data(fig_X,axs_X,t_states,X2)
+plt.show()
 
 
 ######################  Verification of simulator  ##########################

@@ -113,17 +113,21 @@ class Simulation:
         return (u[self.T_index[i], k])
 
     # Decides the value of uref to empty the tanks one after another
-    def command_manager(self,tanks_list,uref):
-        for tank in tanks_list:
-            self.T[tank].uref = uref
-
-        # if len(tanks_list) != 0:
-        #     emptying_tank = tanks_list[-1]
-        #     if self.T[emptying_tank].x[-1] < 1:
-        #         self.T[emptying_tank].uref = 0
-        #         tanks_list.pop()
-        #     else:
-        #         self.T[emptying_tank].uref = uref
+    # diff is a boolean: if True => empty separately, else => simultaneously
+    def command_manager(self,tanks_list,uref,diff):
+        if diff:
+            # the tanks empty one after the other and identically
+            if len(tanks_list) != 0:
+                emptying_tank = tanks_list[-1]
+                if self.T[emptying_tank].x[-1] < 1:
+                    self.T[emptying_tank].uref = 0
+                    tanks_list.pop()
+                else:
+                    self.T[emptying_tank].uref = uref
+        else:
+            # all the tanks empty simultaneously and identically
+            for tank in tanks_list:
+                self.T[tank].uref = uref
     
     # Gives the values of uref found by mpc algo
     def command_manager_mpc(self, tanks_list, u, k):
@@ -152,10 +156,10 @@ class Simulation:
         self.T_index = {name: idx for idx, name in enumerate(self.T.keys())}
         return self.T, self.X, self.X_index, self.T_index
         
-    def simu(self, h, N):
+    def simu(self, h, N, diff):
         tanks_list = list(self.T.keys())
         for k in range (1,N):
-            self.command_manager(tanks_list,0.3) # Commande max fonctionnement sans bouchons: uref = 0.3
+            self.command_manager(tanks_list,100,diff) # Commande max fonctionnement sans bouchons: uref = 0.3
             for t in self.T:
                 # calculer u
                 d = list(self.graph.successors(self.sommets[t]))
@@ -325,7 +329,7 @@ class Simulation:
 
         # Boucle sur chaque variable
         for i, var in enumerate(dict):
-            axs[i].plot(t, dict[var].x)
+            axs[i].plot(t, dict[var].x, '-', alpha = 0.9, label = 'Simultaneous evacuation')
             axs[i].set_title("State of " + var, fontsize=14)
             # Taille des graduations
             axs[i].tick_params(axis='both', labelsize=12)
@@ -357,7 +361,8 @@ class Simulation:
             fig.delaxes(axs[j])
 
         plt.tight_layout()
-        plt.show()
+        # plt.show()
+        return fig, axs
 
 
     def create_subplot_mpc(self, table, t, label, hauteur):
@@ -443,7 +448,11 @@ class Simulation:
         self.create_subplot_mpc(tab_x[2:,:], t_states, "X", 6)
         # self.create_subplot_mpc(tab_u, t_inputs)
         
-
+    
+    def add_data(self, fig, axs, t, data):
+        for i, var in enumerate(data):
+            axs[i].plot(t, data[var].x, '--', label="Delayed evacuation")
+            axs[i].legend()
 
                 
 
