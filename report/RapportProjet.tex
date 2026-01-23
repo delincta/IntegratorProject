@@ -185,27 +185,14 @@ First we modeled a simple line graph network with 6 cells and two tanks plugged 
 To empty the tanks, we will try two naive open-loop strategies. First we will try to empty both tanks at the same time and then we will totally empty one tank and then proceed to empty the other one (figure~\ref{fig:simpleNetwork_tankEmptying}). 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tank_states_simulateur_OL.png}
-    \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tank_states_simulateur_OL_command_differe.png}
-    \caption{Different ways to empty the tanks : both emptying at the same time or totally empty one and then the other one}
+    \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tanks_L200.png}
+    \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/cells_L200.png}
+    \caption{Two different evacuation strategies : simultaneous or delayed evacuation}
     \label{fig:simpleNetwork_tankEmptying}
 \end{figure}
 When the two tanks are being emptied at the same time (figure~\ref{fig:simpleNetwork_resultBothTanksEmpt}), there some stress on cell X4 (it peaks at 85 vehicles around 400s). This can be explained by the addition of vehicles coming from the first and second tanks, which accumulate at cell 4. 
 When emptying the tanks one after the other (figure~\ref{fig:simpleNetwork_resultTankOneThenAnother}) (first tank 2, then tank 1), we notice that we never exceed twenty vehicles, regardless of the cell. Even if it takes a little longer in this configuration, we notice that there is less stress on the cells.
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{figures/line_graph/Open_loop/cell_states_simulateur_OL.png}
-    \caption{Results when both tanks are emptied at the same time}
-    \label{fig:simpleNetwork_resultBothTanksEmpt}
-\end{figure}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=\textwidth]{figures/line_graph/Open_loop/cell_states_simulateur_OL_command_differe.png}
-    \caption{results when the tanks are emptied one after the other}
-    \label{fig:simpleNetwork_resultTankOneThenAnother}
-\end{figure}
-\subsection{Discussion}
 
 
 

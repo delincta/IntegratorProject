@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.3) (preloaded format=pdflatex 2025.4.16)  22 JAN 2026 12:30
+This is pdfTeX, Version 3.141592653-2.6-1.40.27 (MiKTeX 25.3) (preloaded format=pdflatex 2025.4.16)  23 JAN 2026 18:11
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -487,82 +487,76 @@ LaTeX Font Info:    External font `lmex10' loaded for size
 
 
 [2]
-LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 41.
+LaTeX Font Info:    Trying to load font information for TS1+lmr on input line 40.
  (C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmr.fd
 File: ts1lmr.fd 2015/05/01 v1.6.1 Font defs for Latin Modern
 )
 
-[3{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}]
-<figures/graph_2Tanks_6cells.png, id=158, 462.528pt x 190.7928pt>
-File: figures/graph_2Tanks_6cells.png Graphic file (type png)
-<use figures/graph_2Tanks_6cells.png>
-Package pdftex.def Info: figures/graph_2Tanks_6cells.png  used on input line 166.
+[3{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathit.enc}{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-rm.enc}{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathsy.enc}]
+
+[4{C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-mathex.enc}]
+<figures/line_graph/graph_2Tanks_6cells.png, id=161, 462.528pt x 190.7928pt>
+File: figures/line_graph/graph_2Tanks_6cells.png Graphic file (type png)
+<use figures/line_graph/graph_2Tanks_6cells.png>
+Package pdftex.def Info: figures/line_graph/graph_2Tanks_6cells.png  used on input line 176.
 (pdftex.def)             Requested size: 358.50317pt x 147.88907pt.
 
 
-[4]
-<figures/tank_states_simulateur_OL.png, id=175, 722.7pt x 433.62pt>
-File: figures/tank_states_simulateur_OL.png Graphic file (type png)
-<use figures/tank_states_simulateur_OL.png>
-Package pdftex.def Info: figures/tank_states_simulateur_OL.png  used on input line 178.
-(pdftex.def)             Requested size: 358.50317pt x 215.1024pt.
-<figures/tank_states_simulateur_OL_command_differe.png, id=176, 722.7pt x 289.08pt>
-File: figures/tank_states_simulateur_OL_command_differe.png Graphic file (type png)
-<use figures/tank_states_simulateur_OL_command_differe.png>
-Package pdftex.def Info: figures/tank_states_simulateur_OL_command_differe.png  used on input line 179.
+[5]
+<figures/line_graph/Open_loop/tanks_L200.png, id=174, 722.7pt x 289.08pt>
+File: figures/line_graph/Open_loop/tanks_L200.png Graphic file (type png)
+<use figures/line_graph/Open_loop/tanks_L200.png>
+Package pdftex.def Info: figures/line_graph/Open_loop/tanks_L200.png  used on input line 188.
 (pdftex.def)             Requested size: 358.50317pt x 143.4016pt.
+<figures/line_graph/Open_loop/cells_L200.png, id=175, 1110.0672pt x 544.9158pt>
+File: figures/line_graph/Open_loop/cells_L200.png Graphic file (type png)
+<use figures/line_graph/Open_loop/cells_L200.png>
+Package pdftex.def Info: figures/line_graph/Open_loop/cells_L200.png  used on input line 189.
+(pdftex.def)             Requested size: 358.50317pt x 175.98135pt.
 
 
-[5 <./figures/graph_2Tanks_6cells.png>]
-<figures/cell_states_simulateur_OL.png, id=186, 722.7pt x 433.62pt>
-File: figures/cell_states_simulateur_OL.png Graphic file (type png)
-<use figures/cell_states_simulateur_OL.png>
-Package pdftex.def Info: figures/cell_states_simulateur_OL.png  used on input line 187.
-(pdftex.def)             Requested size: 512.14963pt x 307.2901pt.
+LaTeX Warning: Reference `fig:simpleNetwork_resultBothTanksEmpt' on page 6 undefined on input line 193.
 
 
-[6 <./figures/tank_states_simulateur_OL.png> <./figures/tank_states_simulateur_OL_command_differe.png>]
-<figures/cell_states_simulateur_OL_command_differe.png, id=195, 722.7pt x 433.62pt>
-File: figures/cell_states_simulateur_OL_command_differe.png Graphic file (type png)
-<use figures/cell_states_simulateur_OL_command_differe.png>
-Package pdftex.def Info: figures/cell_states_simulateur_OL_command_differe.png  used on input line 194.
-(pdftex.def)             Requested size: 512.14963pt x 307.2901pt.
+LaTeX Warning: Reference `fig:simpleNetwork_resultTankOneThenAnother' on page 6 undefined on input line 194.
 
 
-[7 <./figures/cell_states_simulateur_OL.png> <./figures/cell_states_simulateur_OL_command_differe.png>]
-<figures/Mpc_tank_states_hor200_2000iter.png, id=203, 722.7pt x 433.62pt>
-File: figures/Mpc_tank_states_hor200_2000iter.png Graphic file (type png)
-<use figures/Mpc_tank_states_hor200_2000iter.png>
-Package pdftex.def Info: figures/Mpc_tank_states_hor200_2000iter.png  used on input line 267.
+
+[6 <./figures/line_graph/graph_2Tanks_6cells.png> <./figures/line_graph/Open_loop/tanks_L200.png> <./figures/line_graph/Open_loop/cells_L200.png>]
+
+[7]
+<figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png, id=190, 722.7pt x 433.62pt>
+File: figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png Graphic file (type png)
+<use figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png>
+Package pdftex.def Info: figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png  used on input line 266.
 (pdftex.def)             Requested size: 250.95612pt x 150.57169pt.
-<figures/Simulator_tank_states_hor200_2000iter.png, id=204, 722.7pt x 433.62pt>
-File: figures/Simulator_tank_states_hor200_2000iter.png Graphic file (type png)
-<use figures/Simulator_tank_states_hor200_2000iter.png>
-Package pdftex.def Info: figures/Simulator_tank_states_hor200_2000iter.png  used on input line 274.
+<figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png, id=191, 722.7pt x 433.62pt>
+File: figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png Graphic file (type png)
+<use figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png>
+Package pdftex.def Info: figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png  used on input line 273.
 (pdftex.def)             Requested size: 250.95612pt x 150.57169pt.
-
-
-[8]
-<figures/Mpc_cells_states_hor200_2000iter.png, id=209, 722.7pt x 433.62pt>
-File: figures/Mpc_cells_states_hor200_2000iter.png Graphic file (type png)
-<use figures/Mpc_cells_states_hor200_2000iter.png>
-Package pdftex.def Info: figures/Mpc_cells_states_hor200_2000iter.png  used on input line 284.
+<figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png, id=192, 722.7pt x 433.62pt>
+File: figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png Graphic file (type png)
+<use figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png>
+Package pdftex.def Info: figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png  used on input line 283.
 (pdftex.def)             Requested size: 358.50317pt x 215.1024pt.
-<figures/Simulator_cells_states_hor200_2000iter.png, id=210, 722.7pt x 433.62pt>
-File: figures/Simulator_cells_states_hor200_2000iter.png Graphic file (type png)
-<use figures/Simulator_cells_states_hor200_2000iter.png>
-Package pdftex.def Info: figures/Simulator_cells_states_hor200_2000iter.png  used on input line 291.
+<figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png, id=193, 722.7pt x 433.62pt>
+File: figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png Graphic file (type png)
+<use figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png>
+Package pdftex.def Info: figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png  used on input line 290.
 (pdftex.def)             Requested size: 358.50317pt x 215.1024pt.
 
-Underfull \hbox (badness 1097) in paragraph at lines 314--314
+
+[8 <./figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png> <./figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png> <./figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png>]
+Underfull \hbox (badness 1097) in paragraph at lines 313--313
 []|\T1/lmr/m/n/12 Open-loop when the two tanks
  []
 
 
 
-[9 <./figures/Mpc_tank_states_hor200_2000iter.png> <./figures/Simulator_tank_states_hor200_2000iter.png> <./figures/Mpc_cells_states_hor200_2000iter.png>]
+[9 <./figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png>]
 
-[10 <./figures/Simulator_cells_states_hor200_2000iter.png>] (RapportProjet.lof)
+[10] (RapportProjet.lof)
 \tf@lof=\write5
 \openout5 = `RapportProjet.lof'.
 
@@ -573,21 +567,25 @@ Underfull \hbox (badness 1097) in paragraph at lines 314--314
 LaTeX2e <2024-11-01> patch level 2
 L3 programming layer <2025-03-26>
  ***********
+
+
+LaTeX Warning: There were undefined references.
+
 Package rerunfilecheck Info: File `RapportProjet.out' has not changed.
-(rerunfilecheck)             Checksum: AE05D9BF380D091B42F66D89E985F788;5951.
+(rerunfilecheck)             Checksum: 43D4296548FFABF5988778E45C193B9E;5843.
  ) 
 Here is how much of TeX's memory you used:
- 12917 strings out of 469959
- 209230 string characters out of 5464958
- 595884 words of memory out of 5000000
- 39458 multiletter control sequences out of 15000+600000
- 676583 words of font info for 82 fonts, out of 8000000 for 9000
+ 12914 strings out of 469959
+ 209610 string characters out of 5464958
+ 595780 words of memory out of 5000000
+ 39451 multiletter control sequences out of 15000+600000
+ 682563 words of font info for 84 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 75i,12n,79p,948b,550s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 75i,12n,79p,1135b,550s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr10.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb>
-Output written on RapportProjet.pdf (11 pages, 557913 bytes).
+Output written on RapportProjet.pdf (11 pages, 525520 bytes).
 PDF statistics:
- 309 PDF objects out of 1000 (max. 8388607)
- 57 named destinations out of 1000 (max. 500000)
- 254 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 298 PDF objects out of 1000 (max. 8388607)
+ 59 named destinations out of 1000 (max. 500000)
+ 236 words of extra memory for PDF output out of 10000 (max. 10000000)
 
