@@ -85,12 +85,12 @@ print(graph.edges)
 # t_inputs = np.arange(N_simu)*h_simu
 # t_states = np.arange(N_simu)*h_simu
 
-# fig_T,axs_T = simu.create_subplot(T1,t_inputs,4)
-# simu.add_data(fig_T,axs_T,t_inputs,T2)
+# fig_T,axs_T = simu.create_subplot(T1,t_inputs,4,'Simultaneous evacuation')
+# simu.add_data(fig_T,axs_T,t_inputs,T2,"Delayed evacuation")
 # plt.show()
 
-# fig_X,axs_X = simu.create_subplot(X1,t_states,6)
-# simu.add_data(fig_X,axs_X,t_states,X2)
+# fig_X,axs_X = simu.create_subplot(X1,t_states,6,'Simultaneous evacuation')
+# simu.add_data(fig_X,axs_X,t_states,X2,"Delayed evacuation")
 # plt.show()
 
 ######################  Verification of simulator  ##########################
@@ -151,10 +151,10 @@ print("Taille X_hist" + str(len(X_hist)))
 t_inputs = np.arange(N+1)*h
 t_states = np.arange(N+1)*h
 
-fig_T,axs_T = simu.create_subplot(T1,t_inputs,4)
-simu.add_data_list(fig_T,axs_T,t_inputs,X_hist[0:2,:])
+fig_T,axs_T = simu.create_subplot(T1,t_inputs,4,"Simulator")
+simu.add_data_list(fig_T,axs_T,t_inputs,X_hist[0:2,:],"MPC")
 plt.show()
 
-fig_X,axs_X = simu.create_subplot(X1,t_states,6)
-simu.add_data_list(fig_X,axs_X,t_states,X_hist[2:,:])
+fig_X,axs_X = simu.create_subplot(X1,t_states,6,"Simulator")
+simu.add_data_list(fig_X,axs_X,t_states,X_hist[2:,:],"MPC")
 plt.show()

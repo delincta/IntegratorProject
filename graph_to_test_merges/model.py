@@ -314,7 +314,7 @@ class Simulation:
     # Displays with subplots
     # dict: dictionnary containing the data (type Cell)
     # t: time vector
-    def create_subplot(self, dict, t, hauteur):
+    def create_subplot(self, dict, t, hauteur, label):
         # Nombre de variables
         n = len(dict)
 
@@ -329,7 +329,7 @@ class Simulation:
 
         # Boucle sur chaque variable
         for i, var in enumerate(dict):
-            axs[i].plot(t, dict[var].x, '-', alpha = 0.9, label = 'Simultaneous evacuation')
+            axs[i].plot(t, dict[var].x, '-', alpha = 0.9, label = label)
             axs[i].set_title("State of " + var, fontsize=14)
             # Taille des graduations
             axs[i].tick_params(axis='both', labelsize=12)
@@ -449,10 +449,20 @@ class Simulation:
         # self.create_subplot_mpc(tab_u, t_inputs)
         
     
-    def add_data(self, fig, axs, t, data):
+    def add_data(self, fig, axs, t, data, label):
         for i, var in enumerate(data):
-            axs[i].plot(t, data[var].x, '--', label="Delayed evacuation")
-            axs[i].legend()
+            axs[i].plot(t, data[var].x, '--', label=label)
+            if i == 1:
+                axs[i].legend()
+
+    def add_data_list(self, fig, axs, t, data, label):
+        n_rows, n_col = data.shape
+
+        # Boucle sur chaque variable
+        for i in range(n_rows):
+            axs[i].plot(t, data[i,:], '--', label=label)
+            if i == 1:
+                axs[i].legend()
 
                 
 
