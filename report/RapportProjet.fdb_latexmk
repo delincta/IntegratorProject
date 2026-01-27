@@ -1,5 +1,5 @@
 # Fdb version 4
-["pdflatex"] 1769528878.73739 "c:/Users/clement milcent/Documents/Scolarite_E3/3A/Projet intégrateur/IntegratorProject/report/RapportProjet.tex" "RapportProjet.pdf" "RapportProjet" 1769528882.92781 0
+["pdflatex"] 1769537153.22547 "c:/Users/clement milcent/Documents/Scolarite_E3/3A/Projet intégrateur/IntegratorProject/report/RapportProjet.tex" "RapportProjet.pdf" "RapportProjet" 1769537155.3485 0
   "C:/Users/clement milcent/AppData/Local/MiKTeX/fonts/map/pdftex/pdftex.map" 1768309995 82507 a9eef8696c92627b87e9975edea03b2a ""
   "C:/Users/clement milcent/AppData/Local/MiKTeX/miktex/data/le/pdftex/pdflatex.fmt" 1744789037 13153089 321c19aa56652ed33c6a3b291c665d39 ""
   "C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ec.enc" 1256929440 2375 baa924870cfb487815765f9094cf3728 ""
@@ -118,17 +118,19 @@
   "C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/tex/latex/tools/tabularx.sty" 1730400552 7243 e5dac1240636811edb77568b81818372 ""
   "C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/tex/latex/url/url.sty" 1388490452 12796 8edb7d69a20b857904dd0ea757c14ec9 ""
   "C:/Users/clement milcent/AppData/Local/Programs/MiKTeX/tex/latex/xcolor/xcolor.sty" 1729265222 55384 b454dec21c2d9f45ec0b793f0995b992 ""
-  "RapportProjet.aux" 1769528882 6628 7ecbee8cb6bae896c94f3ba9bb9d10b1 "pdflatex"
-  "RapportProjet.lof" 1769528882 571 ac9e8a84317b561e759cabf3835d9185 "pdflatex"
-  "RapportProjet.out" 1769528882 5843 43d4296548ffabf5988778e45c193b9e "pdflatex"
-  "RapportProjet.tex" 1769528878 18098 e812c0df80aa8842e08afafca9bc5da5 ""
-  "RapportProjet.toc" 1769528882 3008 72f04ab53f89a8a7cc6c4819c256b2e5 "pdflatex"
-  "c:/Users/clement milcent/Documents/Scolarite_E3/3A/Projet intégrateur/IntegratorProject/report/RapportProjet.tex" 1769528878 18098 e812c0df80aa8842e08afafca9bc5da5 ""
+  "RapportProjet.aux" 1769537155 7509 403b859822adbcb99b473323ae8ec1d4 "pdflatex"
+  "RapportProjet.lof" 1769537155 895 14c279cf622bf0dc2878887fa9c76f87 "pdflatex"
+  "RapportProjet.out" 1769537155 6181 294f7ee0c3151c2a07a2e7e2e518df87 "pdflatex"
+  "RapportProjet.tex" 1769537152 20735 bb1e4d82775cd2957563f7b2d40c3c07 ""
+  "RapportProjet.toc" 1769537155 3134 cd97ef8ca406455ae00356bb414a84a2 "pdflatex"
+  "c:/Users/clement milcent/Documents/Scolarite_E3/3A/Projet intégrateur/IntegratorProject/report/RapportProjet.tex" 1769537152 20735 bb1e4d82775cd2957563f7b2d40c3c07 ""
   "figures/line_graph/Open_loop/cells_L200.png" 1769244063 70524 f61c0468f70c3cde5b80110f179f97d4 ""
   "figures/line_graph/Open_loop/tanks_L200.png" 1769244048 35103 6c2f66cb86a3d3fbae9516898ec32af3 ""
   "figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png" 1767719625 32256 43572507e0db1bc5e320fad7342ad347 ""
   "figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png" 1767719625 34175 81b9b4277c94c6eaf4096ed08d1c8cca ""
   "figures/line_graph/graph_2Tanks_6cells.png" 1769073554 8074 f931a4c0be2373f6302d3e5127259d71 ""
+  "figures/merge_graph/Graph.png" 1769073344 14641 fca3c26728eb9c9ebcce531f5cf091d3 ""
+  "figures/merge_graph/Open_loop/cells_L200.png" 1769245239 74842 70b37b2e37fa6a001b07cae9e988852f ""
   "figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png" 1768914135 69538 6bc479532a7a0ce2c4ff72eff008d461 ""
   "figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png" 1768914051 65751 4f9fc112262944773343a41b4333872b ""
   (generated)
