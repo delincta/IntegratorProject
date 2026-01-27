@@ -2,6 +2,5 @@
 \contentsline {figure}{\numberline {2}{\ignorespaces Network with two Tanks and six Cells}}{6}{figure.caption.12}%
 \contentsline {figure}{\numberline {3}{\ignorespaces Two different evacuation strategies tested for the line graph : simultaneous or delayed evacuation}}{7}{figure.caption.13}%
 \contentsline {figure}{\numberline {4}{\ignorespaces Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}}{8}{figure.caption.14}%
-\contentsline {figure}{\numberline {5}{\ignorespaces MPC and simulator tnak states}}{10}{figure.caption.15}%
-\contentsline {figure}{\numberline {6}{\ignorespaces MPC cells states}}{10}{figure.caption.16}%
-\contentsline {figure}{\numberline {7}{\ignorespaces Simulator cells states}}{11}{figure.caption.17}%
+\contentsline {figure}{\numberline {5}{\ignorespaces MPC tank states}}{10}{figure.caption.15}%
+\contentsline {figure}{\numberline {6}{\ignorespaces MPC cells states}}{11}{figure.caption.16}%

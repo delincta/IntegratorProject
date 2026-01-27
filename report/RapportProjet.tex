@@ -11,6 +11,7 @@
 \usepackage{graphicx}
 \usepackage{subcaption}
 \usepackage[a4paper,margin=1.5cm]{geometry}
+\usepackage{placeins}
 
 \title{Integration Project -- Model Predictive Control (MPC)\\[0.3cm]
 Modeling and Control of a Transport Network}
@@ -294,38 +295,22 @@ This part is fed with both the  MPC results and the simulator outputs based on t
 The MPC is run over a finite horizon of 200 for 2000 iterations.
 
 
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
-    \begin{subfigure}{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/Mpc_tank_states_hor200_2000iter.png}
-        \caption{MPC tank states}
-        \label{fig:MPC_tank_states}
-    \end{subfigure}
-    \hfill
-    \begin{subfigure}{0.49\linewidth}
-        \centering
-        \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/Simulator_tank_states_hor200_2000iter.png}
-        \caption{Simulator tank states}
-        \label{fig:simulator_tank_states}
-    \end{subfigure}
-    \caption{MPC and simulator tnak states}
-    \label{fig:MPC_simulator_tank_states}
+    \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/tank_L200.png}
+    \caption{MPC tank states}
+    \label{fig:MPC_tank_states}
 \end{figure}
+\FloatBarrier
 
-\begin{figure}[h]
+\begin{figure}[h!]
     \centering
-    \includegraphics[width=0.7\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/Mpc_cells_states_hor200_2000iter.png}
+    \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/cells_L200.png}
     \caption{MPC cells states}
     \label{fig:MPC_cells_states}
 \end{figure}
+\FloatBarrier
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.7\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/Simulator_cells_states_hor200_2000iter.png}
-    \caption{Simulator cells states}
-    \label{fig:simulator_cells_states}
-\end{figure}
 
 We got in the simulator that we perfectly match the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5$ and $x_6$. But we the others, it's approximately the same but we got good results indeed. 
 
