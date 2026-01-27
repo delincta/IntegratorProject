@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.27)  27 JAN 2026 21:28
+This is pdfTeX, Version 3.141592653-2.6-1.40.28 (MiKTeX 25.12) (preloaded format=pdflatex 2026.1.27)  27 JAN 2026 22:36
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
@@ -528,15 +528,30 @@ Package pdftex.def Info: figures/line_graph/Simulator_Mpc_coupled/cells_L200.png
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
 [10 <./figures/line_graph/Simulator_Mpc_coupled/tank_L200.png>]
-Underfull \hbox (badness 1097) in paragraph at lines 333--333
+<figures/merge_graph/Simulator_Mpc_coupled/tanks_L200.png, id=219, 722.7pt x 289.08pt>
+File: figures/merge_graph/Simulator_Mpc_coupled/tanks_L200.png Graphic file (type png)
+<use figures/merge_graph/Simulator_Mpc_coupled/tanks_L200.png>
+Package pdftex.def Info: figures/merge_graph/Simulator_Mpc_coupled/tanks_L200.png  used on input line 320.
+(pdftex.def)             Requested size: 512.14963pt x 204.86006pt.
+<figures/merge_graph/Simulator_Mpc_coupled/cells_L200.png, id=220, 722.7pt x 433.62pt>
+File: figures/merge_graph/Simulator_Mpc_coupled/cells_L200.png Graphic file (type png)
+<use figures/merge_graph/Simulator_Mpc_coupled/cells_L200.png>
+Package pdftex.def Info: figures/merge_graph/Simulator_Mpc_coupled/cells_L200.png  used on input line 328.
+(pdftex.def)             Requested size: 512.14963pt x 307.2901pt.
+
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[11 <./figures/line_graph/Simulator_Mpc_coupled/cells_L200.png> <./figures/merge_graph/Simulator_Mpc_coupled/tanks_L200.png>]
+Underfull \hbox (badness 1097) in paragraph at lines 350--350
 []|\T1/lmr/m/n/12 Open-loop when the two tanks
  []
 
-[11 <./figures/line_graph/Simulator_Mpc_coupled/cells_L200.png>] [12] (RapportProjet.lof)
+[12 <./figures/merge_graph/Simulator_Mpc_coupled/cells_L200.png>] [13] (RapportProjet.lof)
 \tf@lof=\write5
 \openout5 = `RapportProjet.lof'.
 
- [13] (RapportProjet.aux)
+ [14] (RapportProjet.aux)
  ***********
 LaTeX2e <2025-11-01>
 L3 programming layer <2025-12-29>
@@ -545,17 +560,17 @@ Package rerunfilecheck Info: File `RapportProjet.out' has not changed.
 (rerunfilecheck)             Checksum: 294F7EE0C3151C2A07A2E7E2E518DF87;6181.
  ) 
 Here is how much of TeX's memory you used:
- 12909 strings out of 467871
- 206330 string characters out of 5418376
- 621676 words of memory out of 5000000
- 41532 multiletter control sequences out of 15000+600000
+ 12928 strings out of 467871
+ 207316 string characters out of 5418376
+ 621771 words of memory out of 5000000
+ 41548 multiletter control sequences out of 15000+600000
  680469 words of font info for 83 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  75i,12n,83p,1167b,520s stack positions out of 10000i,1000n,20000p,200000b,200000s
 <C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmbx12.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmex10.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi12.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmmi8.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr12.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr17.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmr8.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy10.pfb><C:/Users/Admin/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmsy8.pfb>
-Output written on RapportProjet.pdf (13 pages, 451239 bytes).
+Output written on RapportProjet.pdf (14 pages, 540099 bytes).
 PDF statistics:
- 314 PDF objects out of 1000 (max. 8388607)
- 63 named destinations out of 1000 (max. 500000)
- 244 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 326 PDF objects out of 1000 (max. 8388607)
+ 66 named destinations out of 1000 (max. 500000)
+ 254 words of extra memory for PDF output out of 10000 (max. 10000000)
 
