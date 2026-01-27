@@ -84,7 +84,7 @@ where $c_i$ is a capacity constant and $w_i$ is a saturation coefficient.
 
 \subsection{Flow definitions}
 
-The vehicle flows in the network are defined to capture physical limitations and capacity constraints. The \textbf{flow between two cells} is limited by the demand of the upstream cell and the supply of the downstream cell, ensuring realistic traffic propagation. When multiple cells converge into a single cell, the incoming flow is distributed proportionally to the demand of each upstream cell while respecting the capacity of the downstream cell. The \textbf{flow from a tank to a cell} is controlled by the tank’s control variable and is limited by the supply of the target cell. For terminal cells with no successors, the \textbf{outflow from the network} corresponds directly to the demand of the cell. Finally, flows from transport cells back to tanks are prohibited, reflecting the irreversibility of the evacuation. These definitions link the network state and control decisions to the actual flows between cells and tanks, while respecting congestion and capacity constraints.
+The vehicle flows in the network are defined to capture physical limitations and capacity constraints. The \textbf{flow between two cells} is limited by the demand of the upstream cell and the supply of the downstream cell, ensuring realistic traffic propagation. When multiple cells converge into a single cell, the incoming flow is distributed proportionally to the demand of each upstream cell while respecting the capacity of the downstream cell. The \textbf{flow from a tank to a cell} is controlled by the tank’s control variable and is limited by the supply of the target cell. For terminal cells with no successors, the \textbf{outflow from the network} corresponds directly to the demand of the cell. Finally, flows from transport cells back to tanks or upstream cells are prohibited, reflecting the irreversibility of the evacuation. These definitions link the network state and control decisions to the actual flows between cells and tanks, while respecting congestion and capacity constraints.
 
 
 
@@ -109,7 +109,11 @@ We have $ m \in \mathcal{X}$ cells that all lead to a single cell $j \in \mathca
 
 For a tank $T \in \mathcal{T}$ and a cell $j \in \mathcal{X}$:
 \[
-f_{Tj}(k) = \min\left(u_T(k)\, x_T(k),\; s_j(x_j(k))\right).
+f_{Tj}(k) = \min\left(u_T(k),\; s_j(x_j(k))\right).
+\]
+
+\[
+    \text{with} \, u_T(k)\ \le \ x_T(k)
 \]
 
 \paragraph{Outflow from the network}
@@ -119,16 +123,20 @@ If a cell $i$ has no successor, the outflow leaving the network is:
 \mu_i(k) = d_i(x_i(k)).
 \]
 
-\paragraph{No return to tanks}
+\paragraph{One-way evacuation}
 
-Flows from transport cells back to tanks are forbidden:
+Reverse flows from transport cells back to tanks or upstream cells are forbidden:
 \[
 f_{jT}(k) = 0, \quad \forall j \in \mathcal{X},\ \forall T \in \mathcal{T}.
 \]
 
+\[
+f_{ji}(k) = 0, \quad \forall i,j \in \mathcal{X},\ j \ge i.
+\]
+
 \subsection{Discrete-time system dynamics}
 
-The discrete-time dynamics of the network describe the evolution of vehicle number of vehicles in tanks and transport cells. Tank number of vehicles decrease according to the outgoing flows to the cells, while cell number of vehicles increase with incoming flows and decrease with outgoing flows and network outflows. This formulation directly links the flows to the network states.
+The discrete-time dynamics of the network describe the evolution of the number of vehicles in tanks and transport cells. Tank number of vehicles decrease according to the outgoing flows to the cells, while cell number of vehicles increase with incoming flows and decrease with outgoing flows and network outflows. This formulation directly links the flows to the network states.
 
 
 \paragraph{Tank dynamics}
@@ -178,7 +186,7 @@ When we get $m \in \mathcal{X}$ cells to a single cell $j \in \mathcal{X}$, we a
     \label{fig:simpleNetworkFig}
 \end{figure}
 
-First we modeled a simple line graph network with 6 cells and two tanks plugged respectively on the first and the fourth cell as we can see in figure~\ref{fig:simpleNetworkFig}. Each cell have a 500 meters length and a capacity of 1000 vehicles/h. Each vehicle move at 70 km/h in the cells. The two tanks are initially filled with 100 vehicles.
+First we modeled a simple line graph network with 6 cells and two tanks plugged respectively on the first and the fourth cell as we can see in figure~\ref{fig:simpleNetworkFig}. Each cell has a 200 meters length and a capacity of 1000 vehicles/h. Each vehicle moves at 70 km/h in the cells. The two tanks are initially filled with 100 vehicles.
 
 
 \subsection{Open-Loop Simulation Setup and Results}
@@ -190,7 +198,7 @@ To empty the tanks, we will try two naive open-loop strategies. First we will tr
     \caption{Two different evacuation strategies : simultaneous or delayed evacuation}
     \label{fig:simpleNetwork_tankEmptying}
 \end{figure}
-When the two tanks are being emptied at the same time (figure~\ref{fig:simpleNetwork_resultBothTanksEmpt}), there some stress on cell X4 (it peaks at 85 vehicles around 400s). This can be explained by the addition of vehicles coming from the first and second tanks, which accumulate at cell 4. 
+When the two tanks are being emptied at the same time (figure~\ref{fig:simpleNetwork_resultBothTanksEmpt}), there is some stress on cell X4 (it peaks at 85 vehicles around 400s). This can be explained by the addition of vehicles coming from the first and second tanks, which accumulate at cell 4. 
 When emptying the tanks one after the other (figure~\ref{fig:simpleNetwork_resultTankOneThenAnother}) (first tank 2, then tank 1), we notice that we never exceed twenty vehicles, regardless of the cell. Even if it takes a little longer in this configuration, we notice that there is less stress on the cells.
 
 
@@ -231,7 +239,7 @@ The objective is to minimize $J$ subject to:
     \sum_{j:\,T \to j} f_{Tj}(k) \le u_T(k)\, x_T(k),
     \]
     \item system dynamics,
-    \item no return flows to tanks,
+    \item no reverse flows,
     \item given initial condition $x(0)$.
 \end{itemize}
 \subsection{Numerical Implementation of the MPC Controller}
