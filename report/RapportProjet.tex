@@ -283,16 +283,16 @@ The control is done following these steps :
 \begin{itemize}
     \item Formulate the problem statement (cost function, constraints)
     \item Solve the optimization problem
-    \item Apply the first half solutions of the optimization problem
+    \item Apply the first half solutions of the optimization problem to the simulator
+    \item Reset the MPC problem with the result from the simulator
     \item Go again with the previous steps until we get the last iteration
 \end{itemize}
 
 \subsection{Closed-Loop Simulation Results}
-This part is fed with both the  MPC results and the simulator outputs based on the MPC solution.\\
+This part is fed with both the  MPC results and the simulator outputs based on the MPC solution.\\ Both results are displayed on the same plots so that they can be compared.
 The MPC is run over a finite horizon of 200 for 2000 iterations.
 
-\subsubsection{Junction with two single cells}
-
+\subsubsection{Line graph}
 
 
 \begin{figure}[h!]
@@ -311,9 +311,9 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
 \end{figure}
 \FloatBarrier
 
-We got in the simulator that we perfectly match the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5$ and $x_6$. But we the others, it's approximately the same but we got good results indeed. 
+The simulator matches accurately the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5$ and $x_6$. Regarding the other cells, the match is not perfect but the results are still really close. 
 
-\subsubsection{Junction with many cells to a single one}
+\subsubsection{Y-shaped graph}
 
 \begin{figure}[h!]
     \centering
@@ -331,7 +331,9 @@ We got in the simulator that we perfectly match the MPC plots using MPC solution
 \end{figure}
 \FloatBarrier
 
-For this part, we observe that the results are slightly worse than for the line graph. Indeed, larger discrepancies can be observed between the MPC results and those of the simulator. However, the general trends are still respected, which indicates that the MPC is able to capture the main dynamics of the system despite the observed deviations.
+In the Y-shaped graph configuration, the results are slightly worse than for the line graph. Indeed, larger discrepancies can be observed between the MPC results and those of the simulator. However, the general trends are still respected, which indicates that the MPC is able to capture the main dynamics of the system despite the observed deviations.
+
+To conclude, these results show that the previously performed convex relaxations do not distort the model dynamics. Therefore, the MPC solution can be found by controlling the vehicles' speed.
 
 \section{Results and Performance Analysis}
 \subsection{Comparison Between Open-Loop and Closed-Loop Behavior}

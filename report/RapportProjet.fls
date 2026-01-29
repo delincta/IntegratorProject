@@ -130,6 +130,8 @@ INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\generic\iftex\i
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\geometry\geometry.cfg
+INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\placeins\placeins.sty
+INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\placeins\placeins.sty
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\t1lmr.fd
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\t1lmr.fd
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\t1lmr.fd
@@ -267,35 +269,34 @@ INPUT .\figures\merge_graph\Open_loop\cells_L200.png
 INPUT .\figures\merge_graph\Open_loop\cells_L200.png
 INPUT .\figures\merge_graph\Open_loop\cells_L200.png
 INPUT .\figures\merge_graph\Open_loop\cells_L200.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Mpc_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Mpc_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Mpc_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Mpc_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Mpc_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Mpc_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Mpc_tank_states_hor200_2000iter.png
-INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr10.tfm
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Simulator_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Simulator_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Simulator_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Simulator_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Simulator_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Simulator_tank_states_hor200_2000iter.png
-INPUT .\figures\line_graph\Simulator_Mpc_coupled\Simulator_tank_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Mpc_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Mpc_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Mpc_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Mpc_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Mpc_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Mpc_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Mpc_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Simulator_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Simulator_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Simulator_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Simulator_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Simulator_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Simulator_cells_states_hor200_2000iter.png
-INPUT .\figures\merge_graph\Simulator_Mpc_coupled\Simulator_cells_states_hor200_2000iter.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\line_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\tanks_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\tanks_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\tanks_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\tanks_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\tanks_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\tanks_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\tanks_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
+INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
 INPUT .\RapportProjet.lof
 INPUT .\RapportProjet.lof
 INPUT RapportProjet.lof
@@ -311,8 +312,6 @@ INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi12.pfb
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi8.pfb
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmmi8.pfb
-INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr10.pfb
-INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr10.pfb
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr12.pfb
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr12.pfb
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\type1\public\lm\lmr17.pfb

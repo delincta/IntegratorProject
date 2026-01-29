@@ -179,6 +179,99 @@ class Simulation:
                     self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f(i,j.name) for j in d))) # ordre important
                 else:
                     self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i) for j in l) - self.f_end(i))) # ordre important
+
+    def simu_v3(self, h, N, diff):
+        f_t1x1, f_t2x4, f_x1x2, f_x2x3, f_x3x7, f_x4x5, f_x5x6, f_x6x7 = [], [], [], [], [], [], [], []
+        tanks_list = list(self.T.keys())
+
+        for k in range(1, N):
+
+
+            # Stocker les états actuels
+            Xk = {i: self.X[i].x[-1] for i in self.X}
+            Tk = {t: self.T[t].x[-1] for t in self.T}
+
+            # Mettre à jour les commandes
+            self.command_manager(tanks_list, 100, diff)
+
+            # =========================
+            # 1️ Calcul des flux des réservoirs
+            # =========================
+            flux = {}  # flux[(source, target)]
+            for t in self.T:
+                d = list(self.graph.successors(self.sommets[t]))
+                for s in d:
+                    u = min(self.T[t].uref, Tk[t])
+                    flux[(t, s.name)] = min(u, self.X[s.name].s_fcn())
+
+            # =========================
+            # 2️ Calcul des flux entre cellules avec ajustement proportionnel
+            # =========================
+            for i in self.X:
+                d = list(self.graph.successors(self.sommets[i]))
+                if not d:
+                    continue  # pas de successeur, flux sortant géré à la fin
+                # somme des flux demandés par les successeurs
+                total_demand = sum(self.X[i].d_fcn() for j in d)
+                # somme des capacités des successeurs
+                total_supply = sum(self.X[j.name].s_fcn() for j in d)
+                factor = min(1, total_supply / total_demand) if total_demand > 0 else 1
+
+                for j in d:
+                    flux[(i, j.name)] = self.X[i].d_fcn() * factor
+
+            # =========================
+            # 3️ Mise à jour des réservoirs
+            # =========================
+            T_next = {}
+            for t in self.T:
+                d = list(self.graph.successors(self.sommets[t]))
+                outflow = sum(flux[(t, s.name)] for s in d)
+                T_next[t] = max(Tk[t] - h * outflow, 0)
+
+            # =========================
+            # 4️ Mise à jour des cellules
+            # =========================
+            X_next = {}
+            for i in self.X:
+                l = list(self.graph.predecessors(self.sommets[i]))
+                d = list(self.graph.successors(self.sommets[i]))
+
+                # flux entrants
+                inflow = sum(flux[(j.name if not j.name.startswith("T") else j.name, i)]
+                            for j in l)
+
+                # flux sortants
+                if d:
+                    outflow = sum(flux[(i, j.name)] for j in d)
+                else:
+                    outflow = self.X[i].d_fcn()  # flux final vers l'extérieur
+
+                X_next[i] = max(Xk[i] + h * (inflow - outflow), 0)
+
+            # =========================
+            # 5️ Appliquer les mises à jour
+            # =========================
+            for t in self.T:
+                self.T[t].x.append(T_next[t])
+            for i in self.X:
+                self.X[i].x.append(X_next[i])
+
+            f_x3x7.append(flux[('X3','X7')])
+            f_x6x7.append(flux[('X6','X7')])
+
+        # =========================
+        # 6️ Affichage (inchangé)
+        # =========================
+        cost = sum(np.sum(self.T[t].x) for t in self.T) + sum(np.sum(self.X[x].x) for x in self.X)
+        print("Coût total :", cost)
+
+        t_arr = np.arange(N-1)*h
+        plt.figure()
+        plt.plot(t_arr, f_x3x7, label='f_x3x7')
+        plt.plot(t_arr, f_x6x7, label='f_x6x7')
+        plt.legend()
+        plt.show()
     
     def simu_mpc(self, h, N, u, Gamma):
         tanks_list = list(self.T.keys())
