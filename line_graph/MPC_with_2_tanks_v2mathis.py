@@ -9,7 +9,7 @@ from cvxpy import *
 # Number of iterations
 N = 8000
 # MPC horizon
-nh = int(N/10)
+nh = int(N/5)
 M = int(nh/2)
 # Nb of tanks
 nt = 2
@@ -19,11 +19,11 @@ nc = 6
 h = 0.1
 x_max = 100 # Max number of vehicles/ only used to find Gamma
 # Max speeds of the cells
-V = np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
+V = 1/3.6*np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
 # Slopes of supply function
 W = 20/3.6*np.eye(6)
 # Lengths of roads
-L = np.array([500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
+L = np.array([200, 200, 200, 200, 200, 200], dtype=float).reshape(nc,1)
 # Capacities of the cells
 Cap = 1/4.7*L *20/3.6 *1 # 1 voie mobilisée
 # Max flow
@@ -94,12 +94,22 @@ U = Variable((nt, nh))
 
 ######### Cost function #########
 # Now we can try to penalize the number of vehicles present in the whole network
+rho = 1000
+epsilon = 100
+# obj = Maximize(sum(Ft) + sum(Fc))
+# obj = Minimize(sum(X) + rho * sum_squares(X[:, -1]))
+# obj = Maximize(sum(Ft))
 obj = Minimize(sum(X))
+# obj = Minimize(sum(X) - epsilon * sum(Fc[5,:]))
+
 ######### We store states and inputs in tables #########
 X_hist = np.zeros((nt+nc, N+1))  
 X_hist[:, 0] = X0.value.flatten(order='C')
 print(X_hist[:, 0].shape)
-U_hist = np.zeros((nt, N))    
+U_hist = np.zeros((nt, N))
+Sf_hist = np.zeros((nc, N))
+Df_hist = np.zeros((nc, N)) 
+Fc_hist = np.zeros((nc, N)) 
 
 
 for k_simu in range(0, N, M):
@@ -109,10 +119,12 @@ for k_simu in range(0, N, M):
     constr = []
     # Dynamics
     constr += [X[:, 0:1] == X0, X[:, 1:] == X[:,:nh] + h*(Mt@Ft + Mc@Fc)]
+
     for k in range(nh):
+        constr += [Df[:,k] <= Fmax]
         constr += [Sf[:, k] <= (Cap - W @ X[2:8, k])]
         # constr += [Sf[:, k] >= 0]
-        constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
+        # constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
         constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
         for i in range(nc):
             # constr += [Z[i, k] <= x_max * Gamma[i, k],
@@ -123,34 +135,49 @@ for k_simu in range(0, N, M):
         constr += [Fc[0:5, k] <= Sf[1:6, k]]
         constr += [Fc[0:5, k] <= Df[0:5, k]]
 
-    constr += [Df <= Fmax]
+    # constr += [Df <= Fmax]
     constr += [Ft >= 0]
     constr += [Fc >= 0]
-    constr += [Ft <= U]
+    constr += [X >= 0]
+
+    # k_global = 1500
+    # k_local = k_global - k_simu
+    # if 0 <= k_local <= nh:
+    #     constr += [X[5, k_local] >= 35]
+
+
+    # constr += [Ft <= U]
     # constr += [Gamma >= 0, Gamma <= 1]
     prob = Problem(obj, constr)
 
     prob.solve(warm_start=True)
 
-    u = U.value[:,0:M]
+    # u = U.value[:,0:M]
     
-    U_hist[:, k_simu:k_simu+M] = u
+    # U_hist[:, k_simu:k_simu+M] = u
     X_hist[:, k_simu+1:k_simu+M+1] = X.value[:,0:M]
+    Sf_hist[:, k_simu:k_simu+M] = Sf.value[:,0:M]
+    Df_hist[:, k_simu:k_simu+M] = Df.value[:,0:M]
+    Fc_hist[:, k_simu:k_simu+M] = Fc.value[:,0:M]
     # print(X0)
     X0 = X.value[:,M-1].reshape(-1,1)
     # print(X0) 
 
 ########## Update sequences of states and inputs ############
 X_hist = X_hist
-U_hist = U_hist
+# U_hist = U_hist
 print(X_hist.shape)
+
+###################### Print the cost #######################
+cost = np.sum(X_hist)
+print("Coût total: " + str(cost))
 
 ###################### Plot the time #######################
 t_inputs = np.arange(N)*h
 t_states = np.arange(N+1)*h
 ####################### Plot the inputs ######################
 cols = 2
-rows = (nt + cols - 1) // cols  # arrondi vers le haut
+rows = (nc + cols - 1) // cols  # arrondi vers le haut
 
 fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
 
@@ -158,9 +185,14 @@ fig, axs = plt.subplots(rows, cols, figsize=(10, 6))
 axs = axs.flatten()
 
 # Boucle sur chaque variable
-for i in range(nt):
-    axs[i].plot(t_inputs, (U_hist[i,:]))
-    axs[i].set_title(f"u{i+1}")
+# for i in range(nt):
+#     axs[i].plot(t_inputs, (U_hist[i,:]))
+#     axs[i].set_title(f"u{i+1}")
+for i in range(nc):
+    axs[i].plot(t_inputs, (Fc_hist[i,:]), '-', label='Fc')
+    axs[i].plot(t_inputs, (Df_hist[i,:]), '--', label='Df')
+    axs[i].set_title(f"Sf{i+1}")
+    axs[i].legend()
 
 # Supprimer les subplots vides si n n'est pas multiple de cols
 for j in range(i+1, len(axs)):
@@ -182,9 +214,9 @@ axs = axs.flatten()
 for i in range(nt+nc):
     axs[i].step(t_states, np.ravel(X_hist[i,:]))
     if i < nt:
-        axs[i].set_title(f"xt{i+1}")
+        axs[i].set_title(f"State of T{i+1}")
     else:
-        axs[i].set_title(f"x{i+1-2}")
+        axs[i].set_title(f"State of X{i+1-2}")
     
 # Supprimer les subplots vides si n n'est pas multiple de cols
 for j in range(i+1, len(axs)):

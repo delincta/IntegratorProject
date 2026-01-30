@@ -182,7 +182,7 @@ When we get $m \in \mathcal{X}$ cells to a single cell $j \in \mathcal{X}$, we a
 \subsection{First Network: Line Graph --- Two Tanks and Six Cells}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/line_graph/graph_2Tanks_6cells.png}
+    \includegraphics[width=0.5\textwidth]{figures/line_graph/graph_2Tanks_6cells.png}
     \caption{Network with two Tanks and six Cells}
     \label{fig:simpleNetworkFig}
 \end{figure}
@@ -193,7 +193,7 @@ First we modeled a simple line graph network with 6 cells and two tanks plugged 
 \subsection{Second Network: Y-shaped Graph --- Two Tanks and Six Cells}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/merge_graph/Graph.png}
+    \includegraphics[width=0.5\textwidth]{figures/merge_graph/Graph.png}
     \caption{Network with two Tanks and six Cells}
     \label{fig:complexNetworkFig}
 \end{figure}
@@ -204,21 +204,30 @@ Then, we modeled a Y-shaped graph network with 7 cells and two tanks plugged res
 \subsection{Open-Loop Simulation Setup and Results}
 To empty the tanks, two naive open-loop strategies were tested. On one hand, both tanks were emptied simultaneously and, on the other hand, both tanks were fully emptied one after the other, beginning with the second tank. Both strategies were simulated for each of the networks and compared in figure~\ref{fig:simpleNetwork_tankEmptying} and figure~\ref{fig:complexNetwork_tankEmptying}. The control variable $u_T$ was set to the constant value of 100 vehicles so that it did not constrain tanks'outflows. Therefore, these simulations correspond to the best evacuation time for both strategies, in the case of a constant control variable. 
 
-\begin{figure}[H]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tanks_L200.png}
     \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/cells_L200.png}
     \caption{Two different evacuation strategies tested for the line graph : simultaneous or delayed evacuation}
     \label{fig:simpleNetwork_tankEmptying}
 \end{figure}
+\FloatBarrier
  
-\begin{figure}[H]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tanks_L200.png}
+    \caption{Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}
+    \label{fig:complexNetwork_tankEmptying}
+\end{figure}
+\FloatBarrier
+
+\begin{figure}[h!]
+    \centering
     \includegraphics[width=0.7\textwidth]{figures/merge_graph/Open_loop/cells_L200.png}
     \caption{Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}
     \label{fig:complexNetwork_tankEmptying}
 \end{figure}
+\FloatBarrier
 
 When both tanks are emptied simultaneously in the line graph, there is more stress on cell X4 than for delayed evacuation. This can be explained by the addition of vehicles coming from the first and second tanks, which accumulate at cell 4. In the Y-shaped graph, the same results are observed. There is indeed more stress on cell X7 as this is where both branches merge but also on cells X3 and X6, the closest cells to X7. This is due to the "back-propagation" of saturation on transport cells, i.e. when a cell saturates, the straight upstream cells cannot evacuate their vehicles so they store more of them and end up saturating too. Besides, the saturation limit of each cell is about 42.5 vehicles, corresponding to the maximum number of vehicles that a 200m long road portion can contain (considering average vehicle length of 4.7m).
 Note that only one lane is used here for evacuation. 
@@ -273,6 +282,14 @@ The objective is to minimize $J$ subject to:
 \subsection{Numerical Implementation of the MPC Controller}
 The numerical solution to the MPC problem was performed using the cvxpy package, an open source Python-embedded modeling language for convex optimization problems, and the GUROBI solver to increase computational power.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/line_graph/MPC/cells_tanks_8000iter_hor1600.png}
+    \caption{MPC solution for the line graph with a horizon of 1600 steps}
+    \label{fig:MPC_1600hor}
+\end{figure}
+
+The MPC results are displayed on figure \ref{fig:MPC_1600hor}. They don't contain any saturation as the downstream cells from the tanks do not store more than 20 vehicles, although their capacity enable them to store 42,5 of them. The second tank T2 is emptied quicker than the first one T1. The outflow from cells X4, X5 and X6 equals fmax, the maximal flow allowed,  without storing too much vehicles because they store exactly enough vehicles so that fmax is the minimum term in the expression of the demand function.
 
 
 \section{Coupling the MPC Controller with the Simulator}
@@ -283,16 +300,16 @@ The control is done following these steps :
 \begin{itemize}
     \item Formulate the problem statement (cost function, constraints)
     \item Solve the optimization problem
-    \item Apply the first half solutions of the optimization problem
+    \item Apply the first half solutions of the optimization problem to the simulator
+    \item Reset the MPC problem with the result from the simulator
     \item Go again with the previous steps until we get the last iteration
 \end{itemize}
 
 \subsection{Closed-Loop Simulation Results}
-This part is fed with both the  MPC results and the simulator outputs based on the MPC solution.\\
+This part is fed with both the  MPC results and the simulator outputs based on the MPC solution.\\ Both results are displayed on the same plots so that they can be compared.
 The MPC is run over a finite horizon of 200 for 2000 iterations.
 
-\subsubsection{Junction with two single cells}
-
+\subsubsection{Line graph}
 
 
 \begin{figure}[h!]
@@ -311,9 +328,9 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
 \end{figure}
 \FloatBarrier
 
-We got in the simulator that we perfectly match the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5$ and $x_6$. But we the others, it's approximately the same but we got good results indeed. 
+The simulator matches accurately the MPC plots using MPC solution. Especially the plots of the tanks and the cells $x_1,\ x_4,\ x_5$ and $x_6$. Regarding the other cells, the match is not perfect but the results are still really close. 
 
-\subsubsection{Junction with many cells to a single one}
+\subsubsection{Y-shaped graph}
 
 \begin{figure}[h!]
     \centering
@@ -331,7 +348,9 @@ We got in the simulator that we perfectly match the MPC plots using MPC solution
 \end{figure}
 \FloatBarrier
 
-For this part, we observe that the results are slightly worse than for the line graph. Indeed, larger discrepancies can be observed between the MPC results and those of the simulator. However, the general trends are still respected, which indicates that the MPC is able to capture the main dynamics of the system despite the observed deviations.
+In the Y-shaped graph configuration, the results are slightly worse than for the line graph. Indeed, larger discrepancies can be observed between the MPC results and those of the simulator. However, the general trends are still respected, which indicates that the MPC is able to capture the main dynamics of the system despite the observed deviations.
+
+To conclude, these results show that the previously performed convex relaxations do not distort the model dynamics. Therefore, the MPC solution can be found by controlling the vehicles' speed.
 
 \section{Results and Performance Analysis}
 \subsection{Comparison Between Open-Loop and Closed-Loop Behavior}
@@ -339,14 +358,14 @@ For this part, we observe that the results are slightly worse than for the line 
 Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different control strategies. The results show that Model Predictive Control (MPC) with a prediction horizon of 800 and the optimization-based approach lead to very similar outcomes, with times of 733 s and 732 s respectively, indicating nearly identical closed-loop behavior. In contrast, open-loop strategies result in significantly longer times. When the two tanks empty sequentially, the time increases to 902 s, while it reaches 836 s when both tanks empty simultaneously. These results clearly highlight the advantage of closed-loop control strategies, which provide a more efficient dynamic management of the system and significantly reduce the time required to reach the condition where only one vehicle remains in zone X6.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{|X|c|}
+    \begin{tabularx}{\textwidth}{|X|c|c|}
         \hline
         \rowcolor{gray!20}
-        Used Method & Time (in seconds) when there are only one vehicle left in X6 \\ \hline
-        MPC with horizon 800 & 733 \\ \hline
-        Optimization problem & 732 \\ \hline
-        Open-loop when the two tanks empty one after the other & 902 \\ \hline
-        Open-loop when both tanks empty at the same time & 836 \\ \hline
+        Used Method & Evacuation time (in seconds) & Cost \\ \hline
+        MPC with horizon 800 & 744 & 763783\\ \hline
+        Optimization problem & 732 & ???\\ \hline
+        Open-loop delayed evacuation & 737 & 766 829 \\ \hline
+        Open-loop simultaneous evacuation & 744 \\ & 761588 \hline
     \end{tabularx}
     \caption{Comparison Between Open-Loop and Closed-Loop Behavior}
     \label{tab:tableComparisonOL_MPC}

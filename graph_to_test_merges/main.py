@@ -51,34 +51,34 @@ print(graph.edges)
 # simu.results_2(0.1,10000*2)
 
 #### To plot both strategies on the same graph
-# N_simu = 10000
-# h_simu = 0.1
+N_simu = 10000
+h_simu = 0.1
 
-# simu2 = Simulation(graph,sommets)
+simu2 = Simulation(graph,sommets)
 
-# simu.setting(v_properties)
-# simu.simu(h_simu,N_simu,False)
+simu.setting(v_properties)
+simu.simu_v3(h_simu,N_simu,False)
 
-# simu2.setting(v_properties)
-# simu2.simu(h_simu,N_simu,True)
+simu2.setting(v_properties)
+simu2.simu_v3(h_simu,N_simu,True)
 
-# # on récupère les données de chaque simulation et on les affiche ensemble
-# T1,X1 = simu.T,simu.X
-# T2,X2 = simu2.T,simu2.X
+# on récupère les données de chaque simulation et on les affiche ensemble
+T1,X1 = simu.T,simu.X
+T2,X2 = simu2.T,simu2.X
 
-# first_key = next(iter(T1))
-# print(len(T1[first_key].x))
+first_key = next(iter(T1))
+print(len(T1[first_key].x))
 
-# t_inputs = np.arange(N_simu)*h_simu
-# t_states = np.arange(N_simu)*h_simu
+t_inputs = np.arange(N_simu)*h_simu
+t_states = np.arange(N_simu)*h_simu
 
-# fig_T,axs_T = simu.create_subplot(T1,t_inputs,4,'Simultaneous evacuation')
-# simu.add_data(fig_T,axs_T,t_inputs,T2,"Delayed evacuation")
-# plt.show()
+fig_T,axs_T = simu.create_subplot(T1,t_inputs,4,'Simultaneous evacuation')
+simu.add_data(fig_T,axs_T,t_inputs,T2,"Delayed evacuation")
+plt.show()
 
-# fig_X,axs_X = simu.create_subplot(X1,t_states,6,'Simultaneous evacuation')
-# simu.add_data(fig_X,axs_X,t_states,X2,"Delayed evacuation")
-# plt.show()
+fig_X,axs_X = simu.create_subplot(X1,t_states,6,'Simultaneous evacuation')
+simu.add_data(fig_X,axs_X,t_states,X2,"Delayed evacuation")
+plt.show()
 
 
 
@@ -86,66 +86,66 @@ print(graph.edges)
 
 
 
-# Number of iterations
-N = 2000
-# MPC horizon
-nh = int(N/10)
-M = int(nh/2)
-# Nb of tanks
-nt = 2
-# Nb of cells
-nc = 7
-# Step time
-h = 0.1
-# Max speeds of the cells
-V = 1/3.6*np.array([70, 70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
-# Slopes of supply function
-W = 20/3.6*np.eye(nc)
-# Lengths of roads
-L = np.array([200, 200, 200, 200, 200, 200, 200], dtype=float).reshape(nc,1)
-# Capacities of the cells
-Cap = 1/4.7*L *20/3.6 *1 # 1 voie mobilisée
-# Max flow
-Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
+# # Number of iterations
+# N = 2000
+# # MPC horizon
+# nh = int(N/10)
+# M = int(nh/2)
+# # Nb of tanks
+# nt = 2
+# # Nb of cells
+# nc = 7
+# # Step time
+# h = 0.1
+# # Max speeds of the cells
+# V = 1/3.6*np.array([70, 70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
+# # Slopes of supply function
+# W = 20/3.6*np.eye(nc)
+# # Lengths of roads
+# L = np.array([200, 200, 200, 200, 200, 200, 200], dtype=float).reshape(nc,1)
+# # Capacities of the cells
+# Cap = 1/4.7*L *20/3.6 *1 # 1 voie mobilisée
+# # Max flow
+# Fmax = np.array([1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600, 1000/3600], dtype=float).reshape(nc,1)
 
-Mt = np.array([[-1, 0],
-               [0, -1], 
-               [1, 0],
-               [0, 0],
-               [0, 0],
-               [0, 1],
-               [0, 0],
-               [0, 0],
-               [0, 0]], dtype=float)
+# Mt = np.array([[-1, 0],
+#                [0, -1], 
+#                [1, 0],
+#                [0, 0],
+#                [0, 0],
+#                [0, 1],
+#                [0, 0],
+#                [0, 0],
+#                [0, 0]], dtype=float)
 
-Mc = np.array([[0, 0, 0, 0, 0, 0, 0],
-               [0, 0, 0, 0, 0, 0, 0], 
-               [-1, 0, 0, 0, 0, 0, 0],
-               [1, -1, 0, 0, 0, 0, 0],
-               [0, 1, -1, 0, 0, 0, 0],
-               [0, 0, 0, -1, 0, 0, 0],
-               [0, 0, 0, 1, -1, 0, 0],
-               [0, 0, 0, 0, 1, -1, 0],
-               [0, 0, 1, 0, 0, 1, -1]], dtype=float)
+# Mc = np.array([[0, 0, 0, 0, 0, 0, 0],
+#                [0, 0, 0, 0, 0, 0, 0], 
+#                [-1, 0, 0, 0, 0, 0, 0],
+#                [1, -1, 0, 0, 0, 0, 0],
+#                [0, 1, -1, 0, 0, 0, 0],
+#                [0, 0, 0, -1, 0, 0, 0],
+#                [0, 0, 0, 1, -1, 0, 0],
+#                [0, 0, 0, 0, 1, -1, 0],
+#                [0, 0, 1, 0, 0, 1, -1]], dtype=float)
 
-simu.setting(v_properties)
-X_hist, U_hist = simu.verif_simu(h, M, N, nh, nt, nc, V, W, L, Cap, Fmax, Mt, Mc)
-# simu.results_2_mpc(h, N, U_hist, X_hist)
+# simu.setting(v_properties)
+# X_hist, U_hist = simu.verif_simu(h, M, N, nh, nt, nc, V, W, L, Cap, Fmax, Mt, Mc)
+# # simu.results_2_mpc(h, N, U_hist, X_hist)
 
-# on récupère les données de chaque simulation et on les affiche ensemble
-T1,X1 = simu.T,simu.X
+# # on récupère les données de chaque simulation et on les affiche ensemble
+# T1,X1 = simu.T,simu.X
 
-first_key = next(iter(T1))
-print("Taille dico" + str(len(T1[first_key].x)))
-print("Taille X_hist" + str(len(X_hist)))
+# first_key = next(iter(T1))
+# print("Taille dico" + str(len(T1[first_key].x)))
+# print("Taille X_hist" + str(len(X_hist)))
 
-t_inputs = np.arange(N+1)*h
-t_states = np.arange(N+1)*h
+# t_inputs = np.arange(N+1)*h
+# t_states = np.arange(N+1)*h
 
-fig_T,axs_T = simu.create_subplot(T1,t_inputs,4,"Simulator")
-simu.add_data_list(fig_T,axs_T,t_inputs,X_hist[0:2,:],"MPC")
-plt.show()
+# fig_T,axs_T = simu.create_subplot(T1,t_inputs,4,"Simulator")
+# simu.add_data_list(fig_T,axs_T,t_inputs,X_hist[0:2,:],"MPC")
+# plt.show()
 
-fig_X,axs_X = simu.create_subplot(X1,t_states,6,"Simulator")
-simu.add_data_list(fig_X,axs_X,t_states,X_hist[2:,:],"MPC")
-plt.show()
+# fig_X,axs_X = simu.create_subplot(X1,t_states,6,"Simulator")
+# simu.add_data_list(fig_X,axs_X,t_states,X_hist[2:,:],"MPC")
+# plt.show()

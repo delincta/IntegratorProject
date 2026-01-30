@@ -88,6 +88,7 @@ class Simulation:
     # Computes the flow fij to obtain same result than mpc algo
     def f_mpc(self,i,j,k,Gamma):
         if i.startswith("T"):
+            print("PROBLEM")
             return (min(float("inf"),self.X[j].s_fcn()))
         else:
             if i == "X2" and j == "X3" and k != self.k_old:
@@ -201,8 +202,14 @@ class Simulation:
         # for z in d:
         #     # print(type(z.nom))
         #     print(self.X[z.name])
+        f_t1x1, f_t2x4, f_x1x2, f_x2x3, f_x3x4, f_x4x5, f_x5x6, f_x6 = [], [], [], [], [], [], [], []
         tanks_list = list(self.T.keys())
+
         for k in range (1,N):
+
+            f_t1x1.append(self.new_f_tank('T1','X1'))
+            f_t2x4.append(self.new_f_tank('T2','X4'))
+            f_x3x4.append(self.f('X3','X4',k))
             self.command_manager(tanks_list,100,diff) # Commande max fonctionnement sans bouchons: uref = 0.3
             for t in self.T:
                 # calculer u
@@ -223,6 +230,422 @@ class Simulation:
                     self.X[i].x.append(self.X[i].x[-1] + h*(somme - sum(self.f(i,j.name,k) for j in d))) # ordre important
                 else:
                     self.X[i].x.append(self.X[i].x[-1] + h*(sum(self.f(j.name,i,k) for j in l) - self.f_end(i))) # ordre important
+
+        cost = 0
+        for t in self.T:
+            cost += np.sum(self.T[t].x)
+        for x in self.X:
+            cost += np.sum(self.X[x].x)
+        print("Coût total" + str(cost))
+
+        t = np.arange(N-1)*h
+        plt.figure
+        plt.plot(t, f_x3x4, label='f_x3x4')
+        plt.plot(t, f_t2x4, label='f_t2x4')
+        plt.legend()
+        plt.show()
+
+    # def simu_v2(self, h, N, diff):
+
+    #     f_t1x1, f_t2x4, f_x1x2, f_x2x3, f_x3x4, f_x4x5, f_x5x6, f_x6 = [], [], [], [], [], [], [], []
+    #     tanks_list = list(self.T.keys())
+
+    #     for k in range(1, N):
+
+    #         f_t1x1.append(self.new_f_tank('T1','X1'))
+    #         f_t2x4.append(self.new_f_tank('T2','X4'))
+    #         f_x3x4.append(self.f('X3','X4',k))
+    #         # =========================
+    #         # PATCH 1️ : figer les états
+    #         # =========================
+    #         Xk = {i: self.X[i].x[-1] for i in self.X}
+    #         Tk = {t: self.T[t].x[-1] for t in self.T}
+
+    #         # commandes
+    #         self.command_manager(tanks_list, 10, diff)
+
+    #         # =========================
+    #         # PATCH 2️ : mise à jour T
+    #         # =========================
+    #         T_next = {}
+
+    #         for t in self.T:
+    #             d = list(self.graph.successors(self.sommets[t]))
+    #             outflow = 0
+
+    #             for s in d:
+    #                 # même loi qu'avant, mais avec Tk figé
+    #                 u = min(self.T[t].uref, Tk[t])
+    #                 outflow += min(u, self.X[s.name].s_fcn())
+
+    #             T_next[t] = Tk[t] - h * outflow
+    #             T_next[t] = max(T_next[t], 0)
+
+    #         # =========================
+    #         # PATCH 3️ : mise à jour X
+    #         # =========================
+    #         X_next = {}
+
+    #         for i in self.X:
+    #             l = list(self.graph.predecessors(self.sommets[i]))
+    #             d = list(self.graph.successors(self.sommets[i]))
+
+    #             inflow = 0
+    #             for j in l:
+    #                 if j.name.startswith("T"):
+    #                     u = min(self.T[j.name].uref, Tk[j.name])
+    #                     inflow += min(u, self.X[i].s_fcn())
+    #                 else:
+    #                     inflow += min(
+    #                         self.X[j.name].d_fcn(),
+    #                         self.X[i].s_fcn()
+    #                     )
+
+    #             if len(d) != 0:
+    #                 outflow = sum(
+    #                     min(self.X[i].d_fcn(), self.X[j.name].s_fcn())
+    #                     for j in d
+    #                 )
+    #             else:
+    #                 outflow = self.X[i].d_fcn()
+
+    #             X_next[i] = Xk[i] + h * (inflow - outflow)
+    #             X_next[i] = max(X_next[i], 0)
+
+    #         # =========================
+    #         # PATCH 4️ : appliquer
+    #         # =========================
+    #         for t in self.T:
+    #             self.T[t].x.append(T_next[t])
+    #         for i in self.X:
+    #             self.X[i].x.append(X_next[i])
+
+    #     # coût (inchangé)
+    #     cost = 0
+    #     for t in self.T:
+    #         cost += np.sum(self.T[t].x)
+    #     for x in self.X:
+    #         cost += np.sum(self.X[x].x)
+
+    #     print("Coût total :", cost)
+
+    #     t = np.arange(N-1)*h
+    #     plt.figure
+    #     plt.plot(t, f_x3x4, label='f_x3x4')
+    #     plt.plot(t, f_t2x4, label='f_t2x4')
+    #     plt.legend()
+    #     plt.show()
+
+
+    def simu_v2(self, h, N, diff):
+
+        tanks_list = list(self.T.keys())
+        f_t1x1, f_t2x4, f_x1x2, f_x2x3, f_x3x4, f_x4x5, f_x5x6, f_x6 = [], [], [], [], [], [], [], []
+
+        for k in range(1, N):
+
+            # =========================
+            # 1) Geler les états
+            # =========================
+            Xk = {i: self.X[i].x[-1] for i in self.X}
+            Tk = {t: self.T[t].x[-1] for t in self.T}
+
+            # =========================
+            # 2) Commandes réservoirs
+            # =========================
+            self.command_manager(tanks_list, 10, diff)
+
+            # =========================
+            # 3) Calcul des flux (UN SEUL PASSAGE)
+            # =========================
+            flow = {}   # (i, j) avec j=None pour sortie réseau
+
+            # --- flux des réservoirs ---
+            for t in self.T:
+                succs = list(self.graph.successors(self.sommets[t]))
+
+                if len(succs) == 0:
+                    continue
+
+                u = min(self.T[t].uref, Tk[t])
+                supply_total = sum(self.X[s.name].s_fcn() for s in succs)
+
+                if supply_total > 0:
+                    alpha = min(1.0, u / supply_total)
+                else:
+                    alpha = 0.0
+
+                for s in succs:
+                    flow[(t, s.name)] = alpha * self.X[s.name].s_fcn()
+
+            # --- flux des cellules ---
+            for i in self.X:
+                succs = list(self.graph.successors(self.sommets[i]))
+
+                demand = min(self.X[i].d_fcn(), Xk[i] / h)
+
+                if len(succs) == 0:
+                    # sortie du réseau
+                    flow[(i, None)] = demand
+                    continue
+
+                supply_total = sum(self.X[j.name].s_fcn() for j in succs)
+
+                if supply_total > 0:
+                    alpha = min(1.0, demand / supply_total)
+                else:
+                    alpha = 0.0
+
+                for j in succs:
+                    flow[(i, j.name)] = alpha * self.X[j.name].s_fcn()
+
+            # =========================
+            # 4) Mise à jour réservoirs
+            # =========================
+            T_next = {}
+
+            for t in self.T:
+                succs = list(self.graph.successors(self.sommets[t]))
+
+                outflow = sum(
+                    flow.get((t, s.name), 0.0)
+                    for s in succs
+                )
+
+                outflow = min(outflow, Tk[t] / h)
+
+                T_next[t] = Tk[t] - h * outflow
+                T_next[t] = max(T_next[t], 0.0)
+
+            # =========================
+            # 5) Mise à jour cellules
+            # =========================
+            X_next = {}
+
+            for i in self.X:
+                preds = list(self.graph.predecessors(self.sommets[i]))
+                succs = list(self.graph.successors(self.sommets[i]))
+
+                inflow = sum(
+                    flow.get((j.name, i), 0.0)
+                    for j in preds
+                )
+
+                if len(succs) == 0:
+                    outflow = flow.get((i, None), 0.0)
+                else:
+                    outflow = sum(
+                        flow.get((i, j.name), 0.0)
+                        for j in succs
+                    )
+
+                outflow = min(outflow, Xk[i] / h)
+
+                X_next[i] = Xk[i] + h * (inflow - outflow)
+                X_next[i] = max(X_next[i], 0.0)
+
+            f_t1x1.append(flow.get(('T1','X1'), 0.0))
+            f_t2x4.append(flow.get(('T2','X4'), 0.0))
+            f_x3x4.append(flow.get(('X3','X4'), 0.0))
+            # =========================
+            # 6) Appliquer
+            # =========================
+            for t in self.T:
+                self.T[t].x.append(T_next[t])
+
+            for i in self.X:
+                self.X[i].x.append(X_next[i])
+
+        # =========================
+        # 7) Coût
+        # =========================
+        cost = 0.0
+        for t in self.T:
+            cost += np.sum(self.T[t].x)
+        for x in self.X:
+            cost += np.sum(self.X[x].x)
+
+        print("Coût total :", cost)
+
+        t_arr = np.arange(N-1)*h
+        plt.figure()
+        plt.plot(t_arr, f_x3x4, label='f_x3x4')
+        plt.plot(t_arr, f_t2x4, label='f_t2x4')
+        plt.legend()
+        plt.show()
+
+
+
+
+
+
+    def simu_v3(self, h, N, diff):
+        f_t1x1, f_t2x4, f_x1x2, f_x2x3, f_x3x4, f_x4x5, f_x5x6, f_x6 = [], [], [], [], [], [], [], []
+        tanks_list = list(self.T.keys())
+
+        for k in range(1, N):
+
+
+            # Stocker les états actuels
+            Xk = {i: self.X[i].x[-1] for i in self.X}
+            Tk = {t: self.T[t].x[-1] for t in self.T}
+
+            # Mettre à jour les commandes
+            self.command_manager(tanks_list, 100, diff)
+
+            # =========================
+            # 1️ Calcul des flux des réservoirs
+            # =========================
+            flux = {}  # flux[(source, target)]
+            for t in self.T:
+                d = list(self.graph.successors(self.sommets[t]))
+                for s in d:
+                    u = min(self.T[t].uref, Tk[t])
+                    flux[(t, s.name)] = min(u, self.X[s.name].s_fcn())
+
+            # =========================
+            # 2️ Calcul des flux entre cellules avec ajustement proportionnel
+            # =========================
+            for i in self.X:
+                d = list(self.graph.successors(self.sommets[i]))
+                if not d:
+                    continue  # pas de successeur, flux sortant géré à la fin
+                # somme des flux demandés par les successeurs
+                total_demand = sum(self.X[i].d_fcn() for j in d)
+                # somme des capacités des successeurs
+                total_supply = sum(self.X[j.name].s_fcn() for j in d)
+                factor = min(1, total_supply / total_demand) if total_demand > 0 else 1
+
+                for j in d:
+                    flux[(i, j.name)] = self.X[i].d_fcn() * factor
+
+            # =========================
+            # 3️ Mise à jour des réservoirs
+            # =========================
+            T_next = {}
+            for t in self.T:
+                d = list(self.graph.successors(self.sommets[t]))
+                outflow = sum(flux[(t, s.name)] for s in d)
+                T_next[t] = max(Tk[t] - h * outflow, 0)
+
+            # =========================
+            # 4️ Mise à jour des cellules
+            # =========================
+            X_next = {}
+            for i in self.X:
+                l = list(self.graph.predecessors(self.sommets[i]))
+                d = list(self.graph.successors(self.sommets[i]))
+
+                # flux entrants
+                inflow = sum(flux[(j.name if not j.name.startswith("T") else j.name, i)]
+                            for j in l)
+
+                # flux sortants
+                if d:
+                    outflow = sum(flux[(i, j.name)] for j in d)
+                else:
+                    outflow = self.X[i].d_fcn()  # flux final vers l'extérieur
+
+                X_next[i] = max(Xk[i] + h * (inflow - outflow), 0)
+
+            # =========================
+            # 5️ Appliquer les mises à jour
+            # =========================
+            for t in self.T:
+                self.T[t].x.append(T_next[t])
+            for i in self.X:
+                self.X[i].x.append(X_next[i])
+
+            f_t1x1.append(flux[('T1','X1')])
+            f_t2x4.append(flux[('T2','X4')])
+            f_x3x4.append(flux[('X3','X4')])
+
+        # =========================
+        # 6️ Affichage (inchangé)
+        # =========================
+        cost = sum(np.sum(self.T[t].x) for t in self.T) + sum(np.sum(self.X[x].x) for x in self.X)
+        print("Coût total :", cost)
+
+        t_arr = np.arange(N-1)*h
+        plt.figure()
+        plt.plot(t_arr, f_x3x4, label='f_x3x4')
+        plt.plot(t_arr, f_t2x4, label='f_t2x4')
+        plt.legend()
+        plt.show()
+
+
+
+    
+    def simu_corrected(self, h, N, diff):
+        tanks_list = list(self.T.keys())
+
+        # Stock temporaire pour la mise à jour
+        X_new = {x: self.X[x].x[-1] for x in self.X}
+        T_new = {t: self.T[t].x[-1] for t in self.T}
+
+        for k in range(1, N):
+            # 1️ Mettre à jour les commandes des réservoirs
+            self.command_manager(tanks_list, 0.3, diff)  # uref max = 100 pour exemple
+
+            # 2️ Calculer les flux des réservoirs vers les cellules sans encore toucher X
+            flux_tank_to_cell = {}
+            for t in self.T:
+                d = list(self.graph.successors(self.sommets[t]))
+                for s in d:
+                    u = min(self.T[t].uref, self.T[t].x[-1])
+                    flux_tank_to_cell[(t, s.name)] = min(u, self.X[s.name].s_fcn())
+
+            # 3️ Calculer les flux entre cellules sans encore toucher X
+            flux_cell_to_cell = {}
+            for i in self.X:
+                l = list(self.graph.predecessors(self.sommets[i]))
+                d = list(self.graph.successors(self.sommets[i]))
+
+                for j in d:
+                    # Flux sortant limité par demande et supply
+                    f_demand = self.X[i].d_fcn()
+                    f_supply = self.X[j.name].s_fcn()
+                    flux_cell_to_cell[(i, j.name)] = min(f_demand, f_supply)
+
+            # 4️ Mettre à jour les réservoirs après calcul des flux
+            for t in self.T:
+                d = list(self.graph.successors(self.sommets[t]))
+                total_out = sum(flux_tank_to_cell[(t, s.name)] for s in d)
+                T_new[t] = self.T[t].x[-1] - h * total_out
+                T_new[t] = max(T_new[t], 0)  # jamais négatif
+
+            # 5️ Mettre à jour les cellules après calcul des flux entrants et sortants
+            for i in self.X:
+                l = list(self.graph.predecessors(self.sommets[i]))
+                d = list(self.graph.successors(self.sommets[i]))
+
+                # somme des flux entrants
+                flux_in = 0
+                for j in l:
+                    if j.name.startswith("T"):
+                        flux_in += flux_tank_to_cell[(j.name, i)]
+                    else:
+                        flux_in += flux_cell_to_cell[(j.name, i)]
+
+                # somme des flux sortants
+                flux_out = 0
+                for j in d:
+                    if j.name.startswith("T"):
+                        flux_out += flux_tank_to_cell[(j.name, i)]
+                    else:
+                        flux_out += flux_cell_to_cell[(i, j.name)]
+
+                # mise à jour
+                X_new[i] = self.X[i].x[-1] + h * (flux_in - flux_out)
+                X_new[i] = max(X_new[i], 0)  # jamais négatif
+
+            # 6️ Appliquer les mises à jour simultanément
+            for t in self.T:
+                self.T[t].x.append(T_new[t])
+            for i in self.X:
+                self.X[i].x.append(X_new[i])
+
+        
     
     def simu_mpc(self, h, N, u, Gamma):
         tanks_list = list(self.T.keys())
