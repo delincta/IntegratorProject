@@ -273,6 +273,14 @@ The objective is to minimize $J$ subject to:
 \subsection{Numerical Implementation of the MPC Controller}
 The numerical solution to the MPC problem was performed using the cvxpy package, an open source Python-embedded modeling language for convex optimization problems, and the GUROBI solver to increase computational power.
 
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/line_graph/MPC/cells_tanks_8000iter_hor1600.png}
+    \caption{MPC solution for the line graph with a horizon of 1600 steps}
+    \label{fig:MPC_1600hor}
+\end{figure}
+
+The MPC results are displayed on figure \ref{fig:MPC_1600hor}. They don't contain any saturation as the downstream cells from the tanks do not store more than 20 vehicles, although their capacity enable them to store 42,5 of them. The second tank T2 is emptied quicker than the first one T1. The outflow from cells X4, X5 and X6 equals fmax, the maximal flow allowed,  without storing too much vehicles because they store exactly enough vehicles so that fmax is the minimum term in the expression of the demand function.
 
 
 \section{Coupling the MPC Controller with the Simulator}
@@ -341,14 +349,14 @@ To conclude, these results show that the previously performed convex relaxations
 Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different control strategies. The results show that Model Predictive Control (MPC) with a prediction horizon of 800 and the optimization-based approach lead to very similar outcomes, with times of 733 s and 732 s respectively, indicating nearly identical closed-loop behavior. In contrast, open-loop strategies result in significantly longer times. When the two tanks empty sequentially, the time increases to 902 s, while it reaches 836 s when both tanks empty simultaneously. These results clearly highlight the advantage of closed-loop control strategies, which provide a more efficient dynamic management of the system and significantly reduce the time required to reach the condition where only one vehicle remains in zone X6.
 \begin{table}[H]
     \centering
-    \begin{tabularx}{\textwidth}{|X|c|}
+    \begin{tabularx}{\textwidth}{|X|c|c|}
         \hline
         \rowcolor{gray!20}
-        Used Method & Time (in seconds) when there are only one vehicle left in X6 \\ \hline
-        MPC with horizon 800 & 733 \\ \hline
-        Optimization problem & 732 \\ \hline
-        Open-loop when the two tanks empty one after the other & 902 \\ \hline
-        Open-loop when both tanks empty at the same time & 836 \\ \hline
+        Used Method & Evacuation time (in seconds) & Cost \\ \hline
+        MPC with horizon 800 & 744 & 763783\\ \hline
+        Optimization problem & 732 & ???\\ \hline
+        Open-loop delayed evacuation & 737 & 766 829 \\ \hline
+        Open-loop simultaneous evacuation & 744 \\ & 761588 \hline
     \end{tabularx}
     \caption{Comparison Between Open-Loop and Closed-Loop Behavior}
     \label{tab:tableComparisonOL_MPC}

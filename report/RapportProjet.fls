@@ -138,9 +138,6 @@ INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\t1lmr.
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr12.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\l3backend\l3backend-pdftex.def
-INPUT .\RapportProjet.aux
-INPUT .\RapportProjet.aux
-INPUT RapportProjet.aux
 OUTPUT RapportProjet.aux
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\context\base\mkii\supp-pdf.mkii
@@ -150,14 +147,8 @@ INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\epstopdf-
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\00miktex\epstopdf-sys.cfg
-INPUT .\RapportProjet.out
-INPUT .\RapportProjet.out
-INPUT RapportProjet.out
-INPUT RapportProjet.out
-OUTPUT RapportProjet.pdf
-INPUT .\RapportProjet.out
-INPUT .\RapportProjet.out
 OUTPUT RapportProjet.out
+OUTPUT RapportProjet.pdf
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr17.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr12.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\ot1lmr.fd
@@ -198,10 +189,7 @@ INPUT C:\Users\clement milcent\AppData\Local\MiKTeX\fonts\map\pdftex\pdftex.map
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-ec.enc
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmr17.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx12.tfm
-INPUT .\RapportProjet.toc
-INPUT .\RapportProjet.toc
-INPUT RapportProjet.toc
-INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx12.tfm
+OUTPUT RapportProjet.toc
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\rm-lmr12.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\rm-lmr8.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\rm-lmr6.tfm
@@ -217,11 +205,11 @@ INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\am
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm10.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\amsfonts\symbols\msbm7.tfm
-OUTPUT RapportProjet.toc
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\ts1lmr.fd
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\ts1lmr.fd
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\tex\latex\lm\ts1lmr.fd
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ts1-lmr12.tfm
+INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx12.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\tfm\public\lm\ec-lmbx12.tfm
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-mathit.enc
 INPUT C:\Users\clement milcent\AppData\Local\Programs\MiKTeX\fonts\enc\dvips\lm\lm-rm.enc
@@ -269,6 +257,13 @@ INPUT .\figures\merge_graph\Open_loop\cells_L200.png
 INPUT .\figures\merge_graph\Open_loop\cells_L200.png
 INPUT .\figures\merge_graph\Open_loop\cells_L200.png
 INPUT .\figures\merge_graph\Open_loop\cells_L200.png
+INPUT .\figures\line_graph\MPC\cells_tanks_8000iter_hor1600.png
+INPUT .\figures\line_graph\MPC\cells_tanks_8000iter_hor1600.png
+INPUT .\figures\line_graph\MPC\cells_tanks_8000iter_hor1600.png
+INPUT .\figures\line_graph\MPC\cells_tanks_8000iter_hor1600.png
+INPUT .\figures\line_graph\MPC\cells_tanks_8000iter_hor1600.png
+INPUT .\figures\line_graph\MPC\cells_tanks_8000iter_hor1600.png
+INPUT .\figures\line_graph\MPC\cells_tanks_8000iter_hor1600.png
 INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
 INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
 INPUT .\figures\line_graph\Simulator_Mpc_coupled\tank_L200.png
@@ -297,9 +292,6 @@ INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
 INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
 INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
 INPUT .\figures\merge_graph\Simulator_Mpc_coupled\cells_L200.png
-INPUT .\RapportProjet.lof
-INPUT .\RapportProjet.lof
-INPUT RapportProjet.lof
 OUTPUT RapportProjet.lof
 INPUT RapportProjet.aux
 INPUT .\RapportProjet.out
