@@ -20,8 +20,44 @@ Modeling and Control of a Transport Network}
 
 \begin{document}
 
-\maketitle
+\begin{titlepage}
+    \begin{center}
+        % Logo of the school or company
+        \includegraphics[width=0.4\textwidth]{figures/logo.png} \\[1.5cm]
 
+        % Name of the school or company
+        \textsc{\LARGE Grenoble INP - ENSE3}\\[1.5cm]
+
+        % Report type
+        \textsc{\Large Integration Project Report}\\[0.5cm]
+
+        % Title of the report
+        \HRule \\[0.4cm]
+        { \huge \bfseries Modeling and Control of a Transport Network }\\[0.4cm]
+        \HRule \\[1.5cm]
+
+        % Author and supervisor information
+        \begin{minipage}{0.4\textwidth}
+            \begin{flushleft} \large
+                \emph{Authors:}\\
+                Clément Milcent, Kevin Armel Wassa, Mathis Poteau
+            \end{flushleft}
+        \end{minipage}
+        \begin{minipage}{0.4\textwidth}
+            \begin{flushright} \large
+                \emph{Supervisor:} \\
+                Gustav Nilsson
+            \end{flushright}
+        \end{minipage}
+
+        \\[2cm]
+
+        % Date
+        {\large \today}
+
+
+    \end{center}
+\end{titlepage}
 \newpage
 \tableofcontents
 \newpage
@@ -397,7 +433,9 @@ To conclude, these results show that the previously performed convex relaxations
 \section{Results and Performance Analysis}
 \subsection{Comparison Between Open-Loop and Closed-Loop Behavior}
 
-Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different control strategies. The results show that Model Predictive Control (MPC) with a prediction horizon of 800 and the optimization-based approach lead to very similar outcomes, with times of 733 s and 732 s respectively, indicating nearly identical closed-loop behavior. In contrast, open-loop strategies result in significantly longer times. When the two tanks empty sequentially, the time increases to 902 s, while it reaches 836 s when both tanks empty simultaneously. These results clearly highlight the advantage of closed-loop control strategies, which provide a more efficient dynamic management of the system and significantly reduce the time required to reach the condition where only one vehicle remains in zone X6.
+Table~\ref{tab:tableComparisonOL_MPC} compares the performance of different control strategies in terms of evacuation time and cost. The results show that Model Predictive Control (MPC) with a prediction horizon of 1600 achieves an evacuation time of 744 s with a cost of 762,723, demonstrating consistent and efficient system management.
+
+Open-loop strategies show more variability. The “Open-loop delayed evacuation” reaches a slightly faster time of 737 s but incurs a higher cost of 766,829, indicating less efficient resource usage. The “Open-loop simultaneous evacuation” matches the MPC evacuation time (744 s) with a slightly lower cost (761,588), yet its lack of feedback makes it less robust to disturbances or system variations. These results indicate that MPC is not superior in terms of time or cost under ideal conditions. 
 \begin{table}[H]
     \centering
     \begin{tabularx}{\textwidth}{|X|c|c|}
@@ -406,7 +444,6 @@ Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different
         Used Method & Evacuation time (in seconds) & Cost \\ \hline
         MPC with horizon 1600 & 744 & 762723 \\ \hline
         Open-loop delayed evacuation & 737 & 766 829 \\ \hline
-        Open-loop simultaneous evacuation & 744 & 761588 \\ \hline
         Open-loop simultaneous evacuation & 744 & 761588 \\ \hline
     \end{tabularx}
     \caption{Comparison Between Open-Loop and Closed-Loop Behavior}
