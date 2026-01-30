@@ -216,7 +216,7 @@ To empty the tanks, two naive open-loop strategies were tested. On one hand, bot
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tanks_L200.png}
-    \caption{Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}
+    \caption{State of the tanks -- Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}
     \label{fig:complexNetwork_tankEmptying}
 \end{figure}
 \FloatBarrier
@@ -224,7 +224,7 @@ To empty the tanks, two naive open-loop strategies were tested. On one hand, bot
 \begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/merge_graph/Open_loop/cells_L200.png}
-    \caption{Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}
+    \caption{State of the cells -- Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}
     \label{fig:complexNetwork_tankEmptying}
 \end{figure}
 \FloatBarrier
@@ -344,16 +344,16 @@ The MPC is run over a finite horizon of 200 for 2000 iterations.
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/tank_L200.png}
-    \caption{MPC tank states}
+    \includegraphics[width=0.6\linewidth]{figures/line_graph/Simulator_Mpc_coupled/tank_L200.png}
+    \caption{Line graph : MPC tank states}
     \label{fig:MPC_tank_states}
 \end{figure}
 \FloatBarrier
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{figures/line_graph/Simulator_Mpc_coupled/cells_L200.png}
-    \caption{MPC cells states}
+    \includegraphics[width=0.6\linewidth]{figures/line_graph/Simulator_Mpc_coupled/cells_L200.png}
+    \caption{Line graph : MPC cells states}
     \label{fig:MPC_cells_states}
 \end{figure}
 \FloatBarrier
@@ -364,16 +364,16 @@ The simulator matches accurately the MPC plots using MPC solution. Especially th
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/tanks_L200.png}
-    \caption{MPC tank states}
+    \includegraphics[width=0.6\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/tanks_L200.png}
+    \caption{Y-shaped graph : MPC tank states}
     \label{fig:MPC_tank_states_many_cells}
 \end{figure}
 \FloatBarrier
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/cells_L200.png}
-    \caption{MPC cells states}
+    \includegraphics[width=0.6\linewidth]{figures/merge_graph/Simulator_Mpc_coupled/cells_L200.png}
+    \caption{Y-shaped graph : MPC cells states}
     \label{fig:MPC_cells_states_many_cells}
 \end{figure}
 \FloatBarrier
@@ -395,14 +395,59 @@ Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different
         MPC with horizon 800 & 744 & 763783\\ \hline
         Optimization problem & 732 & ???\\ \hline
         Open-loop delayed evacuation & 737 & 766 829 \\ \hline
-        Open-loop simultaneous evacuation & 744 \\ & 761588 \hline
+        Open-loop simultaneous evacuation & 744 & 761588 \\ \hline
     \end{tabularx}
     \caption{Comparison Between Open-Loop and Closed-Loop Behavior}
     \label{tab:tableComparisonOL_MPC}
 \end{table}
 
 \subsection{Impact of MPC on Congestion Reduction}
-\subsection{Discussion on Model-Simulator Mismatch}
+
+In order to intentionally create a congestion phenomenon in the line graph,
+the parameters of one $X_5$ were modified. Its speed was reduced to $35\,\mathrm{km/h}$ and its maximum flow capacity was limited to $200$ vehicles per hour, while all other cells retained
+their nominal parameters. In addition, the length of each road segment was set
+to $200m$.
+
+These parameter changes directly affect both the demand and supply functions
+of cell $X_5$. The reduction in speed lowers the demand function, while the
+decrease in maximum flow introduces a strict capacity constraint. As a result,
+cell $X_5$ becomes a limiting element in the traffic network, causing vehicles
+to accumulate upstream as we can see in figure~\ref{fig:OL_cells_cong}. This configuration deliberately reproduces a
+congestion scenario, allowing the behavior of the network to be analyzed under
+bottleneck conditions.
+
+\begin{figure}[H]
+    \centering
+
+    \begin{subfigure}[b]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/line_graph/Congestion/cells_OL.png}
+        \caption{Open-loop behavior}
+        \label{fig:OL_cells_cong}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}[b]{0.45\linewidth}
+        \centering
+        \includegraphics[width=\linewidth]{figures/line_graph/Congestion/tanks_cells_50000iter.png}
+        \caption{Closed-loop MPC behavior}
+        \label{fig:CL_cells_cong}
+    \end{subfigure}
+
+    \caption{Cell states under congestion conditions for the line network}
+    \label{fig:cells_congestion_comparison}
+\end{figure}
+In the open-loop case, severe congestion is observed, as several upstream cells
+($X_5$, $X_4$, $X_3$, and even $X_1$) reach approximately $42$ vehicles, which
+corresponds to the maximum occupancy of a cell. This indicates an uncontrolled
+propagation of congestion caused by the bottleneck at cell $X_5$.
+
+In contrast, in the closed-loop MPC case, none of the cells reaches this maximum
+capacity. Although some vehicle accumulation remains due to the reduced
+capacity of $X_5$, the MPC controller effectively regulates upstream inflows,
+keeping vehicle densities bounded and preventing full congestion. Moreover, the
+evacuation times remain comparable in both cases, showing that congestion
+mitigation is achieved without significantly impacting overall throughput.
+
 
 \section{Conclusion and Perspectives}
 \begin{itemize}
