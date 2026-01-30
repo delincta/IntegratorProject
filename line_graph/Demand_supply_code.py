@@ -19,7 +19,7 @@ supply = np.maximum(c - w * x, 0)
 
 # Tracé de la demande
 plt.figure()
-plt.plot(x, demand, linewidth=2)
+plt.plot(demand, linewidth=2)
 plt.grid(True)
 plt.xlabel("x")
 plt.ylabel("Demand")
@@ -28,7 +28,7 @@ plt.show()
 
 # Tracé de la supply
 plt.figure()
-plt.plot(x, supply, linewidth=2)
+plt.plot(supply, linewidth=2)
 plt.grid(True)
 plt.xlabel("x")
 plt.ylabel("Supply")
