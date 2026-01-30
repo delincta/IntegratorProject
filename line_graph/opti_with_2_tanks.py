@@ -16,12 +16,12 @@ nc = 6
 h = 0.1
 
 # Max speeds of the cells
-V = np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
+V = 1/3.6*np.array([70, 70, 70, 70, 70, 70], dtype=float).reshape(nc,1)
 # Slopes of supply function
 W = 20/3.6*np.eye(6)
 # W = np.array([ 20/3.6,  20/3.6,  20/3.6,  20/3.6,  20/3.6,  20/3.6], dtype=float).reshape(nc,1)
 # Lengths of roads
-L = np.array([500, 500, 500, 500, 500, 500], dtype=float).reshape(nc,1)
+L = np.array([200, 200, 200, 200, 200, 200], dtype=float).reshape(nc,1)
 # Capacities of the cells
 Cap = 1/4.7*L
 # Max flow

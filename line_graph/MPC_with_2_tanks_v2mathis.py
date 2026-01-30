@@ -126,6 +126,8 @@ for k_simu in range(0, N, M):
         # constr += [Sf[:, k] >= 0]
         # constr += [U[:, k] >= 0, U[:, k] <= X[0:2, k]]
         constr += [Ft[:, k] <= vstack([Sf[0, k], Sf[3, k]])]
+
+        # constr += [Df[:,k] <= 0.0972*X[2:8, k]]
         for i in range(nc):
             # constr += [Z[i, k] <= x_max * Gamma[i, k],
             #         Z[i, k] <= X[2+i, k]] # Gamma * X
@@ -214,10 +216,34 @@ axs = axs.flatten()
 for i in range(nt+nc):
     axs[i].step(t_states, np.ravel(X_hist[i,:]))
     if i < nt:
-        axs[i].set_title(f"State of T{i+1}")
+        axs[i].set_title(f"State of T{i+1}", fontsize=14)
     else:
-        axs[i].set_title(f"State of X{i+1-2}")
-    
+        axs[i].set_title(f"State of X{i+1-2}", fontsize=14)
+
+    # Taille des graduations
+    axs[i].tick_params(axis='both', labelsize=12)
+
+axs[i].set_xlabel("Time (s)", fontsize=14)
+axs[i-1].set_xlabel("Time (s)", fontsize=14)
+
+# To write a global title for y axis
+for col in range(cols):
+    # axes de la colonne
+    col_axes = [axs[row * cols + col] for row in range(rows)]
+
+    if col == 0:
+        # à gauche de la première colonne
+        x_pos = col_axes[0].get_position().x0 - 0.11
+
+    fig.text(
+        x_pos,
+        0.5,
+        "Number of vehicles",
+        ha="center",
+        va="center",
+        rotation="vertical",
+        fontsize=14
+    )
 # Supprimer les subplots vides si n n'est pas multiple de cols
 for j in range(i+1, len(axs)):
     fig.delaxes(axs[j])
