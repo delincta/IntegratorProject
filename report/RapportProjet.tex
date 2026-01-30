@@ -182,7 +182,7 @@ When we get $m \in \mathcal{X}$ cells to a single cell $j \in \mathcal{X}$, we a
 \subsection{First Network: Line Graph --- Two Tanks and Six Cells}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/line_graph/graph_2Tanks_6cells.png}
+    \includegraphics[width=0.5\textwidth]{figures/line_graph/graph_2Tanks_6cells.png}
     \caption{Network with two Tanks and six Cells}
     \label{fig:simpleNetworkFig}
 \end{figure}
@@ -193,7 +193,7 @@ First we modeled a simple line graph network with 6 cells and two tanks plugged 
 \subsection{Second Network: Y-shaped Graph --- Two Tanks and Six Cells}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/merge_graph/Graph.png}
+    \includegraphics[width=0.5\textwidth]{figures/merge_graph/Graph.png}
     \caption{Network with two Tanks and six Cells}
     \label{fig:complexNetworkFig}
 \end{figure}
@@ -204,21 +204,23 @@ Then, we modeled a Y-shaped graph network with 7 cells and two tanks plugged res
 \subsection{Open-Loop Simulation Setup and Results}
 To empty the tanks, two naive open-loop strategies were tested. On one hand, both tanks were emptied simultaneously and, on the other hand, both tanks were fully emptied one after the other, beginning with the second tank. Both strategies were simulated for each of the networks and compared in figure~\ref{fig:simpleNetwork_tankEmptying} and figure~\ref{fig:complexNetwork_tankEmptying}. The control variable $u_T$ was set to the constant value of 100 vehicles so that it did not constrain tanks'outflows. Therefore, these simulations correspond to the best evacuation time for both strategies, in the case of a constant control variable. 
 
-\begin{figure}[H]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tanks_L200.png}
     \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/cells_L200.png}
     \caption{Two different evacuation strategies tested for the line graph : simultaneous or delayed evacuation}
     \label{fig:simpleNetwork_tankEmptying}
 \end{figure}
+\FloatBarrier
  
-\begin{figure}[H]
+\begin{figure}[h!]
     \centering
     \includegraphics[width=0.7\textwidth]{figures/line_graph/Open_loop/tanks_L200.png}
     \includegraphics[width=0.7\textwidth]{figures/merge_graph/Open_loop/cells_L200.png}
     \caption{Two different evacuation strategies tested for the Y-shaped graph : simultaneous or delayed evacuation}
     \label{fig:complexNetwork_tankEmptying}
 \end{figure}
+\FloatBarrier
 
 When both tanks are emptied simultaneously in the line graph, there is more stress on cell X4 than for delayed evacuation. This can be explained by the addition of vehicles coming from the first and second tanks, which accumulate at cell 4. In the Y-shaped graph, the same results are observed. There is indeed more stress on cell X7 as this is where both branches merge but also on cells X3 and X6, the closest cells to X7. This is due to the "back-propagation" of saturation on transport cells, i.e. when a cell saturates, the straight upstream cells cannot evacuate their vehicles so they store more of them and end up saturating too. Besides, the saturation limit of each cell is about 42.5 vehicles, corresponding to the maximum number of vehicles that a 200m long road portion can contain (considering average vehicle length of 4.7m).
 Note that only one lane is used here for evacuation. 
