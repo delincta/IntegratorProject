@@ -393,7 +393,6 @@ Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different
         \rowcolor{gray!20}
         Used Method & Evacuation time (in seconds) & Cost \\ \hline
         MPC with horizon 800 & 744 & 763783\\ \hline
-        Optimization problem & 732 & ???\\ \hline
         Open-loop delayed evacuation & 737 & 766 829 \\ \hline
         Open-loop simultaneous evacuation & 744 & 761588 \\ \hline
     \end{tabularx}
@@ -441,7 +440,7 @@ In the open-loop case, severe congestion is observed, as several upstream cells
 corresponds to the maximum occupancy of a cell. This indicates an uncontrolled
 propagation of congestion caused by the bottleneck at cell $X_5$.
 
-In contrast, in the closed-loop MPC case, none of the cells reaches this maximum
+In contrast, in the closed-loop MPC case with a horizon of $1000$, none of the cells reaches this maximum
 capacity. Although some vehicle accumulation remains due to the reduced
 capacity of $X_5$, the MPC controller effectively regulates upstream inflows,
 keeping vehicle densities bounded and preventing full congestion. Moreover, the
