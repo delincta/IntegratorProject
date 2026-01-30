@@ -1,5 +1,6 @@
 # LaTeX
 *.aux
+*.lof
 *.log
 *.fls
 *.fdb_latexmk
