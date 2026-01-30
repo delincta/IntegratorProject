@@ -9,7 +9,7 @@ from cvxpy import *
 # Number of iterations
 N = 8000
 # MPC horizon
-nh = int(N/2)
+nh = int(N/5)
 M = int(nh/2)
 # Nb of tanks
 nt = 2
