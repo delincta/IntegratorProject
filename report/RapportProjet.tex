@@ -64,8 +64,7 @@ Modeling and Control of a Transport Network}
 
 \section{Introduction}
 
-In zone-based evacuation planning, the region to evacuate is divided into zones, and each zone must be assigned a path to safety and departure times along the path. Zone-based evacuations are highly desirable in practice because they allow emergency services to communicate evacuation orders and to control the evacuation more precisely. Zone-based evacuations may also be combined with contraflows (to maximize the network capacities) and may impose additional constraints on the evacuation path (e.g., path convergence) and the departure times (e.g., non-preemption). This project focuses on the modeling and optimal control of a transport network represented as a directed graph.  
-The objective is to describe the evolution of the volumes stored in the different components of the network and to formulate a Model Predictive Control (MPC) problem in order to optimize the global behavior of the system over a finite time horizon.
+Zone-based evacuation planning divides an area into zones, assigning each zone a specific evacuation path and departure schedule\cite{ref1}. This method enables precise management and effective communication of evacuation orders, and can be combined with contraflows to maximize network capacity. Additional constraints may be imposed on routes and departure times. This project focuses on modeling a transport network as a directed graph and formulating a Model Predictive Control (MPC) problem to optimize the overall system behavior over a finite time horizon.
 
 First, a mathematical model of the network dynamics is introduced, together with the associated physical constraints.  
 Then, a convex relaxation of the model is proposed in order to make the optimal control problem tractable.  
@@ -121,7 +120,7 @@ where $c_i$ is a capacity constant and $w_i$ is a saturation coefficient.
 
 \subsection{Flow definitions}
 
-The vehicle flows in the network are defined to capture physical limitations and capacity constraints. The \textbf{flow between two cells} is limited by the demand of the upstream cell and the supply of the downstream cell, ensuring realistic traffic propagation. When multiple cells converge into a single cell, the incoming flow is distributed proportionally to the demand of each upstream cell while respecting the capacity of the downstream cell. The \textbf{flow from a tank to a cell} is controlled by the tank’s control variable and is limited by the supply of the target cell. For terminal cells with no successors, the \textbf{outflow from the network} corresponds directly to the demand of the cell. Finally, flows from transport cells back to tanks or upstream cells are prohibited, reflecting the irreversibility of the evacuation. These definitions link the network state and control decisions to the actual flows between cells and tanks, while respecting congestion and capacity constraints.
+The vehicle flows in the network are defined to capture physical limitations and capacity constraints. The \textbf{flow between two cells} is limited by the demand of the upstream cell and the supply of the downstream cell, ensuring realistic traffic propagation. When multiple cells converge into a single cell, the incoming flow is distributed proportionally to the demand of each upstream cell while respecting the capacity of the downstream cell. The \textbf{flow from a tank to a cell} is controlled by the tank’s control variable and is limited by the supply of the target cell. For terminal cells with no successors, the \textbf{outflow from the network} corresponds directly to the demand of the cell. Finally, flows from transport cells back to tanks or upstream cells are prohibited, reflecting the irreversibility of the evacuation. These definitions link the network state and control decisions to the actual flows between cells and tanks, while respecting congestion and capacity constraints\cite{ref2}\cite{ref3}.
 
 
 
@@ -336,15 +335,15 @@ The MPC results are displayed on figure \ref{fig:MPC_1600hor}. They don't contai
 
 \section{Coupling the MPC Controller with the Simulator}
 \subsection{Simulator Description}
-The simulator implements a discrete-time traffic flow model based on the Cell Transmission Model (CTM). The road network is represented as a directed graph composed of tanks and road cells. Each cell is characterized by demand and supply functions, introducing nonlinearities and capacity constraints.
+The simulator implements a discrete-time traffic flow model based on the Network Model. The road network is represented as a directed graph composed of tanks and road cells. Each cell is characterized by demand and supply functions, introducing nonlinearities and capacity constraints.
 
 At each time step, traffic flows are computed as the minimum between upstream demand and downstream supply, ensuring conservation of vehicles and congestion effects. The state of each tank and cell is then updated according to mass balance equations.
 
-As we can see in figure ~\ref{fig:CL_MPC_Sim}, when coupled with the MPC controller, the simulator applies the optimal control actions computed by the MPC and propagates the system dynamics forward in time. This closed-loop simulation allows the evaluation of the controller performance on a realistic nonlinear traffic model.
+As we can see in figure~\ref{fig:CL_MPC_Sim}, when coupled with the MPC controller, the simulator applies the optimal control actions computed by the MPC and propagates the system dynamics forward in time. This closed-loop simulation allows the evaluation of the controller performance on a realistic nonlinear traffic model.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=0.7\textwidth]{figures/schemabloc.png}
+    \includegraphics[width=0.8\textwidth]{figures/schemabloc.png}
     \caption{Closed-Loop MPC–Simulator Architecture}
     \label{fig:CL_MPC_Sim}
 \end{figure}
