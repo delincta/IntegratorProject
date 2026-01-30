@@ -404,8 +404,9 @@ Table~\ref{tab:tableComparisonOL_MPC} compares the time performance of different
         \hline
         \rowcolor{gray!20}
         Used Method & Evacuation time (in seconds) & Cost \\ \hline
-        MPC with horizon 800 & 744 & 763783\\ \hline
+        MPC with horizon 1600 & 744 & 762723 \\ \hline
         Open-loop delayed evacuation & 737 & 766 829 \\ \hline
+        Open-loop simultaneous evacuation & 744 & 761588 \\ \hline
         Open-loop simultaneous evacuation & 744 & 761588 \\ \hline
     \end{tabularx}
     \caption{Comparison Between Open-Loop and Closed-Loop Behavior}
@@ -461,11 +462,8 @@ mitigation is achieved without significantly impacting overall throughput.
 
 
 \section{Conclusion and Perspectives}
-\begin{itemize}
-    \item Summary of the main results
-    \item Limitations of the proposed approach
-    \item Perspectives and future work
-\end{itemize}
+
+This study focused on the application of MPC to a Cell Transmission Model, made possible by convex relaxations. The performance of the control algorithm was compared to naive evacuation strategies. Although the evacuation time obtained by the MPC does not indicate that it improves evacuation performance compared to these simple strategies, several objections can be raised. Firstly, it is important to note that the result calculated by the MPC is already very good, as it is very close to the maximum flow value allowed in the model, which cannot be exceeded. Secondly, the MPC calculates a strategy that does not saturate the network, unlike the other two methods, which produce poorer performance when the control applied does not allow them to saturate. Furthermore, the current simulator model does not seem to penalise congested traffic. Finally, the MPC solution depends on the cost function selected. There may be a cost function that slightly improves the evacuation time obtained, such as introducing a term that rewards vehicle exit, for example.
 
 
 \begin{thebibliography}{9}

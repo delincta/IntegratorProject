@@ -353,7 +353,7 @@ class Simulation:
             # =========================
             # 2) Commandes réservoirs
             # =========================
-            self.command_manager(tanks_list, 10, diff)
+            self.command_manager(tanks_list, 0.3, diff)
 
             # =========================
             # 3) Calcul des flux (UN SEUL PASSAGE)
