@@ -246,18 +246,24 @@ The original flow model relies on $\min(\cdot)$ operators between demand and sup
 
 
 \subsection{Convex Relaxation of the Flow Model}
-To ensure convexity, the $\min(\cdot)$ operators are replaced by inequality constraints, and the flows are treated as independent decision variables $\bar{f}_{ij}$. This relaxation yields a convex optimization problem while preserving the essential physical limitations of the network.
+To ensure convexity, the $\min(\cdot)$ operators are replaced by inequality constraints, and the flows are treated as independent decision variables $\bar{f}_{ij}$. This relaxation yields a convex optimization problem while preserving the essential physical limitations of the network \cite{ref4}.
 \[
 0 \le \bar{f}_{ij}(k) \le d_i(x_i(k)),
 \]
 \[
 \sum_{j:\,j \to i} \bar{f}_{ji}(k) \le s_i(x_i(k)).
 \]
+Relaxing non-convex constraints in MPC involves replacing difficult constraints with convex approximations that are easier to solve. This approach works because the relaxed constraints define a larger feasible set, guaranteeing the existence of a solution and allowing the use of efficient convex solvers.
+
+
+
 \subsection{MPC Problem Statement : Finite-horizon optimal control problem}
 A prediction horizon of length $K$ is considered, together with the following cost function:
 \[
 J = \sum_{k=0}^{K} \left( \sum_{i \in \mathcal{X}} x_i(k) + \sum_{T \in \mathcal{T}} x_T(k) \right).
 \]
+
+A quadratic cost function is commonly used in MPC formulations to penalize large state deviations and smooth control actions. In the present context, such a cost would strongly penalize high congestion levels and promote more homogeneous traffic distributions. However, unlike a linear cost, a quadratic criterion loses the direct interpretation in terms of total time spent in the network. Moreover, it may bias the controller towards avoiding local peaks rather than maximizing global evacuation efficiency. For these reasons, a linear cost was preferred in this work.
 
 The objective is to minimize $J$ subject to:
 \begin{itemize}
@@ -294,16 +300,40 @@ The MPC results are displayed on figure \ref{fig:MPC_1600hor}. They don't contai
 
 \section{Coupling the MPC Controller with the Simulator}
 \subsection{Simulator Description}
+The simulator implements a discrete-time traffic flow model based on the Cell Transmission Model (CTM). The road network is represented as a directed graph composed of tanks and road cells. Each cell is characterized by demand and supply functions, introducing nonlinearities and capacity constraints.
 
+At each time step, traffic flows are computed as the minimum between upstream demand and downstream supply, ensuring conservation of vehicles and congestion effects. The state of each tank and cell is then updated according to mass balance equations.
+
+As we can see in figure ~\ref{fig:CL_MPC_Sim}, when coupled with the MPC controller, the simulator applies the optimal control actions computed by the MPC and propagates the system dynamics forward in time. This closed-loop simulation allows the evaluation of the controller performance on a realistic nonlinear traffic model.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.7\textwidth]{figures/schemabloc.png}
+    \caption{Closed-Loop MPC–Simulator Architecture}
+    \label{fig:CL_MPC_Sim}
+\end{figure}
 \subsection{Closed-Loop Control Architecture}
-The control is done following these steps : 
-\begin{itemize}
-    \item Formulate the problem statement (cost function, constraints)
-    \item Solve the optimization problem
-    \item Apply the first half solutions of the optimization problem to the simulator
-    \item Reset the MPC problem with the result from the simulator
-    \item Go again with the previous steps until we get the last iteration
-\end{itemize}
+The control strategy implemented in this work follows a receding horizon
+principle based on Model Predictive Control (MPC). At each control iteration,
+the optimization problem is formulated and solved over a finite prediction horizon of
+length $n_h$. Once the optimization problem is solved, optimal trajectories for both the
+control inputs and the system states are obtained over the entire prediction
+horizon $n_h$. However, instead of applying the full sequence of optimal
+control actions, only the first half of the computed control inputs is
+implemented on the simulator. More precisely, assuming that the horizon length
+$n_h$ is divisible by two, only the first $\frac{n_h}{2}$ control steps are applied,
+while the remaining ones are discarded. For instance, if the prediction
+horizon is chosen as $n_h = 20$, the controller applies the optimal inputs over
+the next $10$ time steps.
+
+After these $\frac{n_h}{2}$ control actions have been applied, the simulator propagates
+the nonlinear dynamics of the traffic network and provides updated state
+measurements. These new states are then used to reinitialize the MPC problem,
+and a new optimization is solved over a shifted horizon. This procedure is
+repeated iteratively until the final simulation time is reached. Such a
+receding horizon strategy improves robustness with respect to modeling
+uncertainties and disturbances, while maintaining a reasonable trade-off
+between computational complexity and control performance.
 
 \subsection{Closed-Loop Simulation Results}
 This part is fed with both the  MPC results and the simulator outputs based on the MPC solution.\\ Both results are displayed on the same plots so that they can be compared.
